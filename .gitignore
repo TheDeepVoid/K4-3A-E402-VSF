@@ -1,0 +1,27 @@
+# Environment
+.env
+.env.local
+.env.production
+.env.*.local
+node_modules/
+pycache/
+*.py[cod]
+.venv
+
+# Excel and CSV files
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Data
+/Data
+/data
