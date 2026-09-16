@@ -4,10 +4,11 @@
 .env.production
 .env.*.local
 
-# Excel files
+# Excel and CSV files
 *.xlsx
 *.xls
 *.xlsm
+*.csv
 
 # OS
 .DS_Store
