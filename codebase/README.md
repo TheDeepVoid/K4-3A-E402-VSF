@@ -16,9 +16,10 @@ codebase/
 │   │   └── __init__.py
 │   ├── grounding/     ← liên kết với học liệu
 │   │   └── __init__.py
-│   ├── ui/            ← giao diện người dùng
+│   ├── ui/            ← giao diện người dùng (functional web UI)
 │   │   ├── __init__.py
-│   │   └── mockup.html
+│   │   ├── app.py     ← HTTP server + API gọi pipeline AI thật (stdlib, không cần cài thêm)
+│   │   └── index.html ← frontend (chạy từ mockup, call API thật)
 │   ├── prompting/     ← prompt engineering (Person 2)
 │   │   ├── __init__.py
 │   │   ├── system_prompt.md
@@ -87,6 +88,28 @@ python src/evaluation/run_cases.py --provider omniroute \
 # 3. Tính 4 metrics + comparison
 python src/evaluation/score_runs.py
 ```
+
+### Web UI functional
+```bash
+# Chạy server (mặc định http://127.0.0.1:8701/; data pack nhạy cảm nên chỉ host local)
+python src/ui/app.py
+
+# Tuỳ chọn: đổi provider/port
+UI_PROVIDER=omniroute UI_PORT=8701 python src/ui/app.py --host 127.0.0.1
+```
+UI tự chọn provider: ưu tiên `omniroute` nếu có `OMNIROUTE_API_KEY` (router local — không
+gửi data ra ngoài), rồi mới đến `DEFAULT_PROVIDER`/`openai`. Cấu hình tương tự
+`run_cases.py`: `<PROVIDER>_API_KEY / <PROVIDER>_BASE_URL / <PROVIDER>_MODEL`.
+
+API (frontend gọi qua fetch):
+- `GET /api/health` → provider/model đang dùng, có key hay không (không trả secret)
+- `GET /api/meta` → cohort/bài giảng/thời gian có trong data pack + metadata 6 transcript
+- `POST /api/analyze` → lọc câu hỏi thật theo scope (bỏ preset/câu rỗng bằng code),
+  gom cluster bằng system prompt (task=`analyze_clusters`)
+- `POST /api/card` → tạo thẻ ôn 5 phút (task=`review_card`, `teacher_confirmed_source=true`)
+
+Bảo mật: client chỉ nhận cluster đã ẩn danh + số liệu aggregate — KHÔNG nhận câu hỏi
+nguyên văn hay mã học viên.
 
 ## Roles
 
