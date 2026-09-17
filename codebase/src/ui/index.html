@@ -634,37 +634,45 @@ function renderSaved(){
 }
 
 /* ---------- học liệu ---------- */
-function renderResources(){
+function renderResources() {
   const list = $('resourceList');
   if (!S.meta) return;
-  // Get all selected sources (from analysis + manual selection)
+
   const selectedSources = new Set(S.analyzeTranscripts || []);
   if (S.source) selectedSources.add(S.source);
+
   list.innerHTML = S.meta.transcripts.map((t, i) => {
     const isSelected = selectedSources.has(t.id);
-    return '<article class="card resource">' +
-    '<span class="type">TRANSCRIPT · ' + t.segments + ' đoạn [' + esc(t.first.slice(1,-1)) + '…' + esc(t.last.slice(1,-1)) + ']</span>' +
-    '<h2>' + esc(t.title) + '</h2>' +
-    '<p>' + t.chars.toLocaleString('vi-VN') + ' ký tự sạch · nguồn đã sẵn trong data pack.</p>' +
-    '<div class="actions">' +
-      '<button class="btn ' + (isSelected ? 'ghost' : 'primary') + '" data-src="' + i + '">' +
-      (isSelected ? '✓ Đã chọn làm nguồn' : 'Chọn làm nguồn') + '</button>' +
-    '</div></article>').join('');
+    return `
+      <article class="card resource">
+        <span class="type">TRANSCRIPT · ${t.segments} đoạn [${esc(t.first.slice(1, -1))}…${esc(t.last.slice(1, -1))}]</span>
+        <h2>${esc(t.title)}</h2>
+        <p>${t.chars.toLocaleString('vi-VN')} ký tự sạch · nguồn đã sẵn trong data pack.</p>
+        <div class="actions">
+          <button class="btn ${isSelected ? 'ghost' : 'primary'}" data-src="${i}">
+            ${isSelected ? '✓ Đã chọn làm nguồn' : 'Chọn làm nguồn'}
+          </button>
+        </div>
+      </article>
+    `;
+  }).join('');
+
   document.querySelectorAll('[data-src]').forEach(b => b.onclick = () => {
     const tid = S.meta.transcripts[+b.dataset.src].id;
-    // Add to analyzeTranscripts instead of replacing S.source
     if (!S.analyzeTranscripts) S.analyzeTranscripts = [];
     if (!S.analyzeTranscripts.includes(tid)) {
       S.analyzeTranscripts.push(tid);
     }
-    S.source = tid; // Keep for backward compatibility
+    S.source = tid;
     renderResources();
-    if (S.queuedAction === 'manual'){
+
+    if (S.queuedAction === 'manual') {
       S.queuedAction = null;
       switchView('pulse');
-      $('thinState').hidden = true; $('report').hidden = true;
+      $('thinState').hidden = true; 
+      $('report').hidden = true;
       manualCard();
-    } else if (S.queuedAction === 'card'){
+    } else if (S.queuedAction === 'card') {
       S.queuedAction = null;
       switchView('pulse');
       if (S.clusters.length) createCard();
