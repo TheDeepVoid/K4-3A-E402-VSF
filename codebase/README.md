@@ -49,8 +49,6 @@ codebase/
 │   │   ├── dedup_noise.py       # thí nghiệm Noise Resistance
 │   │   └── dedup_experiment.py  # thí nghiệm Noise Resistance cho v1.1
 │   ├── env.py         # Loads API keys from .env
-│   ├── demo.py        # Live demo script
-│   └── eval.py        # Evaluation runner
 ├── tests/             # unit tests
 │   ├── __init__.py
 │   ├── test_cases.py  # Golden test set loader (Person 3)
