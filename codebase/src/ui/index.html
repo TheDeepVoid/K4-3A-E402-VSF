@@ -444,9 +444,12 @@ function renderDetail(){
     '</div>';
   $('chooseSource').onclick = () => { S.queuedAction = 'card'; switchView('resources'); };
   if ($('useCitSource')) $('useCitSource').onclick = () => {
-    const tid = citationsToTranscript(c.citations);
-    if (!tid){ toast('Không tìm thấy transcript tương ứng trong danh sách nguồn.', true); return; }
-    S.source = tid; toast('Đã dùng nguồn theo citations.'); renderDetail();
+    const tids = citationsToTranscripts(c.citations);
+    if (!tids.length){ toast('Không tìm thấy transcript tương ứng trong danh sách nguồn.', true); return; }
+    if (!S.analyzeTranscripts) S.analyzeTranscripts = [];
+    tids.forEach(tid => { if (!S.analyzeTranscripts.includes(tid)) S.analyzeTranscripts.push(tid); });
+    S.source = tids[0]; // Keep first as primary for backward compat
+    toast('Đã dùng ' + tids.length + ' nguồn theo citations.'); renderDetail();
   };
   $('renameBtn').onclick = () => {
     const n = $('rename').value.trim();
@@ -485,15 +488,16 @@ S.transcriptTitle = id => {
   const t = (S.meta.transcripts || []).find(x => x.id === id);
   return t ? shortTitle(t.title) : id;
 };
-function citationsToTranscript(citations){
+function citationsToTranscripts(citations){
+  const transcriptIds = new Set();
   for (const cit of citations || []){
     const m = /^\[T(\d{2})-/.exec(cit);
     if (m){
       const id = 'transcript-' + m[1] + '-clean.md';
-      if ((S.meta.transcripts || []).some(t => t.id === id)) return id;
+      if ((S.meta.transcripts || []).some(t => t.id === id)) transcriptIds.add(id);
     }
   }
-  return '';
+  return Array.from(transcriptIds);
 }
 
 /* ---------- thẻ ôn ---------- */
@@ -623,17 +627,27 @@ function renderSaved(){
 function renderResources(){
   const list = $('resourceList');
   if (!S.meta) return;
-  list.innerHTML = S.meta.transcripts.map((t, i) =>
-    '<article class="card resource">' +
+  // Get all selected sources (from analysis + manual selection)
+  const selectedSources = new Set(S.analyzeTranscripts || []);
+  if (S.source) selectedSources.add(S.source);
+  list.innerHTML = S.meta.transcripts.map((t, i) => {
+    const isSelected = selectedSources.has(t.id);
+    return '<article class="card resource">' +
     '<span class="type">TRANSCRIPT · ' + t.segments + ' đoạn [' + esc(t.first.slice(1,-1)) + '…' + esc(t.last.slice(1,-1)) + ']</span>' +
     '<h2>' + esc(t.title) + '</h2>' +
     '<p>' + t.chars.toLocaleString('vi-VN') + ' ký tự sạch · nguồn đã sẵn trong data pack.</p>' +
     '<div class="actions">' +
-      '<button class="btn ' + (S.source === t.id ? 'ghost' : 'primary') + '" data-src="' + i + '">' +
-      (S.source === t.id ? '✓ Đã chọn làm nguồn' : 'Chọn làm nguồn') + '</button>' +
+      '<button class="btn ' + (isSelected ? 'ghost' : 'primary') + '" data-src="' + i + '">' +
+      (isSelected ? '✓ Đã chọn làm nguồn' : 'Chọn làm nguồn') + '</button>' +
     '</div></article>').join('');
   document.querySelectorAll('[data-src]').forEach(b => b.onclick = () => {
-    S.source = S.meta.transcripts[+b.dataset.src].id;
+    const tid = S.meta.transcripts[+b.dataset.src].id;
+    // Add to analyzeTranscripts instead of replacing S.source
+    if (!S.analyzeTranscripts) S.analyzeTranscripts = [];
+    if (!S.analyzeTranscripts.includes(tid)) {
+      S.analyzeTranscripts.push(tid);
+    }
+    S.source = tid; // Keep for backward compatibility
     renderResources();
     if (S.queuedAction === 'manual'){
       S.queuedAction = null;
@@ -646,7 +660,7 @@ function renderResources(){
       if (S.clusters.length) createCard();
       else toast('Nguồn đã chọn. Hãy chạy phân tích rồi tạo thẻ.');
     } else {
-      toast('Đã xác nhận nguồn cho bản nháp.');
+      toast('Đã thêm nguồn cho bản nháp.');
     }
   });
 }
