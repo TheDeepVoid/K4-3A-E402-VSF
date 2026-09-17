@@ -3,7 +3,7 @@
 ## Phạm vi
 
 - Chạy prompt độc lập qua router OmniRoute (giao thức OpenAI-compatible) bằng
-  `codebase/src/evaluation/run_omniroute.py`; chấm điểm bằng `codebase/src/evaluation/score_runs.py`.
+  `codebase/src/evaluation/run_cases.py`; chấm điểm bằng `codebase/src/evaluation/score_runs.py`.
 - Provider: OmniRoute (local router).
 - Model thực tế: `kiro/deepseek-3.2` (verified working; ~10s/case).
 - Golden set: 50 câu hỏi label thủ công, gom thành 19 case trong `eval/golden_set/`.
