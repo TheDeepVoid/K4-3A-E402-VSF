@@ -4,21 +4,10 @@
 
 Đây là hướng dẫn cách chạy và sử dụng dự án AI Pipeline cho VLearn Pulse.
 
-Luôn chạy **model rẻ nhất còn đang phục vụ**. Không dùng ID đã ngừng (`gpt-3.5-turbo`, `gemini-pro`, `gemini-1.5-flash`).
-
 ## Yêu cầu
 
 - Python 3.9+
 - API key từ các provider (OpenAI, Gemini, OpenRouter, OmniRoute)
-
-## Model rẻ nhất còn phục vụ (tháng 9/2026)
-
-| Provider | Model ID | Ghi chú |
-| --- | --- | --- |
-| OpenAI | `gpt-5-nano` | Rẻ nhất trên bảng giá OpenAI (~$0.05 / $0.40 mỗi 1M token) |
-| Gemini | `gemini-2.5-flash-lite` | Rẻ nhất hiện tại; `gemini-pro` / `gemini-1.5-*` đã deprecated |
-| OpenRouter | `google/gemma-4-31b-it:free` | Miễn phí (có rate-limit). Fallback trả phí: `mistralai/mistral-nemo` |
-| OmniRoute | `gpt-5-nano` | Router tương thích OpenAI; gửi ID rẻ để chọn route rẻ nhất |
 
 ---
 
@@ -46,68 +35,49 @@ cp .env.example .env
 ```
 
 Nội dung file `.env`:
-
 ```env
 OPENAI_API_KEY=your-openai-key
 GEMINI_API_KEY=your-gemini-key
 OPENROUTER_API_KEY=your-openrouter-key
-OMNIROUTE_API_KEY=your-omniroute-key
 DEFAULT_PROVIDER=openai
-DEFAULT_MODEL=gpt-5-nano
-FALLBACK_PROVIDER=openrouter
+DEFAULT_MODEL=gpt-3.5-turbo
 ```
 
 ---
 
 ## Bước 2: Chạy Demo
 
-Chạy script demo với model rẻ nhất còn phục vụ:
+Chạy script demo để kiểm tra pipeline:
 
 ```bash
-# OpenAI — rẻ nhất
-python codebase/demo.py --provider openai --model gpt-5-nano
+# Sử dụng OpenAI
+python codebase/src/demo.py --provider openai --model gpt-3.5-turbo
 
-# Gemini — rẻ nhất
-python codebase/demo.py --provider gemini --model gemini-2.5-flash-lite
+# Sử dụng Gemini
+python codebase/src/demo.py --provider gemini --model gemini-3.5-flash-lite
 
-# OpenRouter — miễn phí
-python codebase/demo.py --provider openrouter --model google/gemma-4-31b-it:free
-
-# OmniRoute — route rẻ nhất
-python codebase/demo.py --provider omniroute --model gpt-5-nano
-```
-
-Nếu OpenRouter `:free` bị rate-limit:
-
-```bash
-python codebase/demo.py --provider openrouter --model mistralai/mistral-nemo
+# Sử dụng OpenRouter
+python codebase/src/demo.py --provider openrouter --model gpt-3.5-turbo
 ```
 
 ---
 
 ## Bước 3: Chạy Evaluation
 
-Chạy bộ test với cùng các model rẻ nhất:
+Chạy bộ test để đánh giá AI:
 
 ```bash
-# OpenAI
-python codebase/eval.py --provider openai --model gpt-5-nano
+# Với OpenAI
+python codebase/src/eval.py --provider openai --model gpt-3.5-turbo
 
-# Gemini
-python codebase/eval.py --provider gemini --model gemini-2.5-flash-lite
-
-# OpenRouter
-python codebase/eval.py --provider openrouter --model google/gemma-4-31b-it:free
-
-# OmniRoute
-python codebase/eval.py --provider omniroute --model gpt-5-nano
+# Với Gemini
+python codebase/src/eval.py --provider gemini --model gemini-3.5-flash-lite
 
 # Lưu kết quả ra file
-python codebase/eval.py --provider openai --model gpt-5-nano --output results.json
+python codebase/src/eval.py --provider openai --output results.json
 ```
 
 Kết quả sẽ hiển thị:
-
 - Tổng số test
 - Số test passed/failed
 - Tỷ lệ pass
@@ -119,23 +89,32 @@ Kết quả sẽ hiển thị:
 
 ```
 codebase/
-├── providers/           # Các AI provider
-│   ├── base.py          # Class cơ sở
-│   ├── openai_provider.py
-│   ├── gemini_provider.py
-│   ├── openrouter_provider.py
-│   └── omniroute_provider.py
-├── docs/                # Template files
-│   ├── system_prompt_template.md
-│   └── test_cases_template.md
-├── config/              # Cấu hình
-│   ├── env.py           # Đọc .env
-│   └── system_prompt.py
-├── tests/               # Test cases
-│   └── test_cases.py
-├── eval.py              # Script đánh giá
-├── demo.py              # Script demo
-└── requirements.txt     # Dependencies
+├── data/                 # Dữ liệu mẫu và processed (không commit)
+├── notebooks/            # Jupyter notebooks (EDA và thử nghiệm)
+├── src/                  # Source code chính
+│   ├── preprocessing/    # Làm sạch và chuẩn hóa data
+│   ├── clustering/       # Thuật toán gom nhóm câu hỏi
+│   ├── grounding/        # Liên kết với học liệu
+│   ├── ui/               # Giao diện người dùng
+│   │   └── mockup.html
+│   ├── prompting/        # Prompt engineering
+│   │   ├── system_prompt.md
+│   │   ├── prompts.py
+│   │   └── prompt_versions.md
+│   ├── providers/        # Các AI provider
+│   │   ├── base.py       # Class cơ sở
+│   │   ├── openai_provider.py
+│   │   ├── gemini_provider.py
+│   │   ├── openrouter_provider.py
+│   │   └── omniroute_provider.py
+│   ├── env.py            # Đọc .env
+│   ├── demo.py           # Script demo
+│   └── eval.py           # Script đánh giá
+├── tests/                # Unit tests
+│   ├── test_cases.py     # Load test cases từ fixtures
+│   └── fixtures/
+│       └── test_cases_template.md
+└── requirements.txt      # Dependencies
 ```
 
 ---
@@ -144,7 +123,7 @@ codebase/
 
 ### Bước 1: Tạo provider file
 
-Tạo file `codebase/providers/myprovider_provider.py`:
+Tạo file `codebase/src/providers/myprovider_provider.py`:
 
 ```python
 from .base import BaseAIProvider, AIResponse, EmbeddingResponse, ProviderConfig
@@ -153,17 +132,17 @@ class MyProvider(BaseAIProvider):
     def __init__(self, config: ProviderConfig):
         super().__init__(config)
         # Khởi tạo client
-
+    
     async def chat_completion(self, messages, **kwargs):
         # Triển khai chat completion
         pass
-
+    
     async def get_embeddings(self, texts, **kwargs):
         # Triển khai embeddings
         pass
 ```
 
-### Bước 2: Thêm vào `__init__.py`
+### Bước 2: Thêm vào __init__.py
 
 ```python
 from .myprovider_provider import MyProvider
@@ -177,7 +156,7 @@ Thêm provider vào danh sách trong `run_evaluation()`.
 
 ## Cách Sửa Test Cases
 
-Chỉnh sửa file `codebase/docs/test_cases_template.md`:
+Chỉnh sửa file `codebase/tests/fixtures/test_cases_template.md`:
 
 ```markdown
 ### norm_001
@@ -193,7 +172,17 @@ Eval script sẽ tự động load từ file này.
 
 ## Cách Sửa System Prompt
 
-Chỉnh sửa file `codebase/docs/system_prompt_template.md`. Config sẽ tự động load prompt từ file này.
+Chỉnh sửa file `codebase/src/prompting/system_prompt.md`:
+
+```markdown
+## Prompt Mặc định
+
+```
+Bạn là AI assistant...
+```
+```
+
+Config sẽ tự động load prompt từ file này.
 
 ---
 
@@ -202,14 +191,6 @@ Chỉnh sửa file `codebase/docs/system_prompt_template.md`. Config sẽ tự �
 ### Lỗi authentication
 
 Kiểm tra API key trong file `.env` đã đúng chưa.
-
-### Model not found / model deprecated
-
-Đừng dùng `gpt-3.5-turbo`, `gemini-pro`, `gemini-1.5-flash`. Dùng đúng ID trong bảng phía trên.
-
-### OpenRouter `:free` bị 429
-
-Đổi sang `mistralai/mistral-nemo` (rẻ, trả phí).
 
 ### Module not found
 
