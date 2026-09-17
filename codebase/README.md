@@ -1,6 +1,6 @@
 # AI Pipeline Template
 
-## Project Structure
+## Cấu Trúc Dự Án
 
 ```
 codebase/
@@ -28,19 +28,20 @@ codebase/
 │   ├── ui/            ← giao diện người dùng (functional web UI)
 │   │   ├── __init__.py
 │   │   ├── app.py     ← HTTP server + API gọi pipeline AI thật (stdlib, không cần cài thêm)
-│   │   └── index.html ← frontend (chạy từ mockup, call API thật)
+│   │   ├── index.html ← frontend (chạy từ mockup, call API thật)
+│   │   └── mockup.html← giao diện mockup cũ (không được sử dụng trong phiên bản hiện tại)
 │   ├── prompting/     ← prompt engineering (Person 2)
 │   │   ├── __init__.py
 │   │   ├── system_prompt.md
 │   │   ├── prompts.py
 │   │   └── prompt_versions.md
-│   ├── providers/     ← AI Provider implementations
+│   ├── providers/     ← AI Provider implementations (legacy, không còn được sử dụng)
 │   │   ├── __init__.py
 │   │   ├── base.py            # Abstract base class
 │   │   ├── openai_provider.py # OpenAI provider
 │   │   ├── gemini_provider.py # Google Gemini provider
 │   │   ├── openrouter_provider.py # OpenRouter provider
-│   │   └── omniroute_provider.py # OmniRoute with fallback
+│   │   └── omniroute_provider.py # OmniRoute provider
 │   ├── evaluation/    ← bộ công cụ eval (golden set, runner, scorer, noise)
 │   │   ├── __init__.py
 │   │   ├── build_golden_set.py  # sinh eval/golden_set
@@ -51,7 +52,6 @@ codebase/
 │   ├── env.py         # Loads API keys from .env
 ├── tests/             # unit tests
 │   ├── __init__.py
-│   ├── test_cases.py  # Golden test set loader (Person 3)
 │   ├── test_tools.py  # Unit test 3 module tool + engine (chạy `python -m unittest tests.test_tools`)
 │   └── fixtures/
 │       └── test_cases_template.md
@@ -71,16 +71,6 @@ export OPENROUTER_API_KEY="your-key"
 ```
 
 ## Usage
-
-### Run Demo
-```bash
-python src/demo.py --provider openai --model gpt-5-nano
-```
-
-### Run Evaluation
-```bash
-python src/eval.py --provider openai --model gpt-5-nano
-```
 
 ### Pipeline evaluation mới (runner đa provider)
 ```bash
@@ -147,7 +137,7 @@ nhận câu hỏi nguyên văn hay mã học viên.
 |--------|------|-------|
 | Person 1 | AI Implementation | Connect real AI, fix providers |
 | Person 2 | Test/Golden Set | Refine prompts in `src/prompting/prompts.py` |
-| Person 3 | Evaluation | Run `src/eval.py`, analyze results |
+| Person 3 | Evaluation | Run `src/evaluation/run_cases.py`, analyze results |
 
 ## Test Cases (15 total)
 
