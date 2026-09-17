@@ -51,24 +51,34 @@ kết quả đó để tổng hợp output cuối đúng schema. Kết quả too
 chúng, không thay thế bằng con số tự ước lượng."""
 
 
-def resolve_config() -> dict:
+def resolve_config(provider: str = None, model: str = None,
+                   base_url: str = None, api_key: str = None) -> dict:
     """Provider/model/key/base_url giống run_cases.py; ưu tiên omniroute (local)."""
-    provider = os.environ.get("UI_PROVIDER") or os.environ.get("DEFAULT_PROVIDER") or ""
-    if provider not in PROVIDERS:
-        provider = "omniroute" if get_api_key("omniroute") else "openai"
-    api_key = get_api_key(provider)
-    base_url = (os.environ.get(f"{provider.upper()}_BASE_URL")
-                or BASE_URL_DEFAULTS.get(provider))
-    model = (os.environ.get(f"{provider.upper()}_MODEL")
-             or os.environ.get("DEFAULT_MODEL") or MODEL_DEFAULTS[provider])
-    return {"provider": provider, "model": model, "api_key": api_key,
-            "base_url": base_url}
+    prov = (provider or os.environ.get("UI_PROVIDER")
+            or os.environ.get("DEFAULT_PROVIDER") or "").lower()
+    if prov not in PROVIDERS:
+        prov = "omniroute" if get_api_key("omniroute") else "openai"
+    key = api_key or get_api_key(prov)
+    url = (base_url or os.environ.get(f"{prov.upper()}_BASE_URL")
+           or BASE_URL_DEFAULTS.get(prov))
+    mod = (model or os.environ.get(f"{prov.upper()}_MODEL")
+           or os.environ.get("DEFAULT_MODEL") or MODEL_DEFAULTS.get(prov))
+    return {"provider": prov, "model": mod, "api_key": key,
+            "base_url": url}
 
 
 _config = None
 _conf_lock = threading.Lock()
 _client = None
 _cli_lock = threading.Lock()
+
+
+def set_engine_config(config: dict) -> None:
+    """Ghi đè cấu hình engine (dùng khi UI/CLI chỉ định provider/model)."""
+    global _config, _client
+    with _conf_lock, _cli_lock:
+        _config = dict(config)
+        _client = None
 
 
 def get_engine_config() -> dict:
@@ -374,5 +384,5 @@ def call_llm_with_tools(payload, system_prompt, temperature=0.3,
 
 
 __all__ = ["TOOL_SCHEMAS", "TOOLS_SYSTEM_HINT", "resolve_config", "get_engine_config",
-           "get_client", "parse_function_calls", "strip_call_blocks",
+           "set_engine_config", "get_client", "parse_function_calls", "strip_call_blocks",
            "plan_injected_pipeline", "run_with_tools", "call_llm_with_tools"]
