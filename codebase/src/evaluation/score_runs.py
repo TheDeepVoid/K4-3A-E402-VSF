@@ -232,6 +232,20 @@ def review_verdicts():
 
 def auto_checks(case_id, payload, parsed):
     """Trả về dict các kiểm tra khách quan."""
+    if parsed is None:
+        # Return default checks for missing parsed output
+        return {
+            "status_valid": False,
+            "sources_valid": False,
+            "card_fields": False,
+            "no_fake_code": False,
+            "confirmed_ok": False,
+            "cluster_count_ok": False,
+            "summary_fields": False,
+            "question_ids_match": False,
+            "valid_count_ok": False,
+            "counts_cover_valid": False,
+        }
     checks = {}
     materials = {m.get("source_id") for m in (payload.get("materials") or [])}
     task = payload.get("task")
@@ -299,6 +313,8 @@ def cluster_citation(materials, expected):
 def purity_for_case(case_id, payload, parsed):
     """Purity cấp cluster: tỷ lệ câu hỏi nằm trong cluster có tập citation
     khớp với một cluster kỳ vọng (so khớp greedy 1-1 theo tập citation)."""
+    if parsed is None:
+        return None, None
     clusters = parsed.get("clusters") or []
     if not clusters:
         return None, None  # không có câu hỏi được cluster
@@ -327,6 +343,8 @@ def purity_for_case(case_id, payload, parsed):
 
 def grounding_accuracy(payload, parsed):
     """Tỷ lệ cluster có grounding hợp lệ theo materials của case."""
+    if parsed is None:
+        return None, None
     clusters = parsed.get("clusters") or []
     if not clusters:
         return None, None
@@ -347,6 +365,8 @@ def coverage_for_case(payload, parsed):
     không rỗng); clustered = tổng question_count trong cluster, clamp theo valid.
     Dùng golden làm mẫu số để không 'được điểm' khi model tự khai thiếu
     valid_question_count (vd miss_002 v1.0 trả 0 dù input có 2 câu hợp lệ)."""
+    if parsed is None:
+        return 0, 0
     valid = sum(1 for q in (payload.get("questions") or [])
                 if not q.get("is_preset")
                 and (q.get("student_question") or "").strip())

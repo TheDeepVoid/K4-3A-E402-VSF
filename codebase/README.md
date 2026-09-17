@@ -131,13 +131,6 @@ API (frontend gọi qua fetch):
 Bảo mật: client chỉ nhận cluster đã ẩn danh + số liệu aggregate + tên tool đã chạy — KHÔNG
 nhận câu hỏi nguyên văn hay mã học viên.
 
-## Roles
-
-| Person | Role | Focus |
-|--------|------|-------|
-| Person 1 | AI Implementation | Connect real AI, fix providers |
-| Person 2 | Test/Golden Set | Refine prompts in `src/prompting/prompts.py` |
-| Person 3 | Evaluation | Run `src/evaluation/run_cases.py`, analyze results |
 
 ## Test Cases (15 total)
 
