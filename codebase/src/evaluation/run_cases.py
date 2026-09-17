@@ -187,6 +187,9 @@ def main():
         out_path = out_dir / f"{args.tag}_{case_id}.json"
 
         payload = json.loads(path.read_text(encoding="utf-8-sig"))
+        if not isinstance(payload, dict) or "task" not in payload:
+            print(f"  {case_id}: bỏ qua (không phải case golden set)", flush=True)
+            continue
         result = {
             "test_id": case_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),

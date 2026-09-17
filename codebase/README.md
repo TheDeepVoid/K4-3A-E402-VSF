@@ -81,7 +81,7 @@ python src/evaluation/build_golden_set.py
 # 2. Chạy case qua provider (mặc định lấy DEFAULT_PROVIDER trong .env;
 #    API key/base URL đọc từ <PROVIDER>_API_KEY / <PROVIDER>_BASE_URL)
 python src/evaluation/run_cases.py --provider omniroute \
-    --prompt-file codebase/src/prompting/system_prompt.md --tag run_001_baseline \
+    --prompt-file codebase/src/prompting/system_prompt.md --tag run_003_v1_2 \
     --model kiro/deepseek-3.2
 
 # 3. Tính 4 metrics + comparison

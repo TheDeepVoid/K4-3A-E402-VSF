@@ -14,9 +14,10 @@ eval/                              ← dữ liệu + báo cáo (code ở codebas
 │   ├── expected_clusters.json     ← kết quả clustering mong đợi
 │   └── ground_truth_mapping.csv   ← liên kết đúng với slide/transcript
 ├── results/
-│   ├── run_001_baseline.json      ← kết quả chạy lần 1
-│   ├── run_002_tuned.json         ← kết quả sau khi tune
-│   ├── comparison.csv             ← bảng so sánh các lần chạy
+│   ├── run_001_baseline.json      ← kết quả chạy v1.0 (baseline)
+│   ├── run_002_tuned.json         ← kết quả chạy v1.1
+│   ├── run_003_v1_2.json          ← kết quả chạy v1.2 (hiện tại)
+│   ├── comparison.csv             ← bảng so sánh 3 phiên bản prompt
 │   ├── cases/                     ← output per-case (JSON từ API)
 │   └── dedup_experiment*.json     ← thí nghiệm Noise Resistance
 └── metrics/
@@ -29,6 +30,11 @@ codebase/src/evaluation/           ← script evaluation (CLI)
 │   ├── score_runs.py                  ← tính metrics + comparison
 │   ├── dedup_noise.py                 ← thí nghiệm Noise Resistance (tổng quát)
 │   └── dedup_experiment.py            ← thí nghiệm Noise Resistance cho v1.1
+
+codebase/src/prompting/            ← prompt system đang được đánh giá
+├── system_prompt.md               ← v1.2 (hiện tại)
+├── system_prompt_v1_0.md          ← v1.0 (archive)
+└── system_prompt_v1_1.md          ← v1.1 (archive)
 ```
 
 ## Metrics
@@ -44,11 +50,13 @@ codebase/src/evaluation/           ← script evaluation (CLI)
 
 | Run | Date | Prompt | Purity | Grounding Acc | Coverage | Noise Resistance | PASS/FAIL |
 |---|---|---|---|---|---|---|---|
-| 001 | 17/9 | v1.0 (`system_prompt.md`) | 0,8065 | 1,0 | 79,5% | 1,0 | 10/9 |
+| 001 | 17/9 | v1.0 (`system_prompt_v1_0.md`) | 0,8065 | 1,0 | 79,5% | 1,0 | 10/9 |
 | 002 | 17/9 | v1.1 (`system_prompt_v1_1.md`) | 0,8438 | 1,0 | 82,1% | 0,5 | 12/7 |
+| 003 | 17/9 | v1.2 (`system_prompt.md`) | 0,7179 | 1,0 | 100% | 1,0 | 15/4 |
 
 - Provider: OmniRoute (local router, OpenAI-compatible); model `kiro/deepseek-3.2`.
 - 19 case, mỗi case một lượt gọi API; kết quả per-case trong `results/cases/`.
+- `comparison.csv` so sánh 3 phiên bản prompt (cột `v100_status`, `v110_status`, `v120_status`).
 - Chi tiết đánh giá từng case: `results/comparison.csv` và `metrics/evaluation_report.md`.
 
 ## Cách thêm evaluation mới
