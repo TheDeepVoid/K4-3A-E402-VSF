@@ -1,25 +1,32 @@
-"""System Prompt Configuration"""
-# This file contains the core prompt template for the AI pipeline
-# Edit this file to modify prompt behavior (Person 2 will iterate on prompts)
+"""System Prompt Configuration - loads from MD file"""
+from pathlib import Path
 
-SYSTEM_PROMPT = """You are an AI assistant specialized in answering questions based on provided context.
+# Load from MD file
+SYSTEM_PROMPT_PATH = Path(__file__).parent.parent / "docs" / "system_prompt.md"
 
-## Instructions
-1. Only answer based on the provided context
-2. If the answer cannot be determined from the context, say "I cannot determine the answer from the provided context"
-3. Be concise and accurate
-4. Cite specific parts of the context when possible
+def load_system_prompt() -> str:
+    """Load the default system prompt from MD file"""
+    content = SYSTEM_PROMPT_PATH.read_text()
+    # Extract the default prompt between the first ``` fences
+    lines = content.split('\n')
+    in_code_block = False
+    prompt_lines = []
+    
+    for line in lines:
+        if line.strip() == '```':
+            if in_code_block:
+                break  # End of default prompt
+            else:
+                in_code_block = True
+                continue
+        if in_code_block and line.strip():
+            prompt_lines.append(line)
+    
+    return '\n'.join(prompt_lines)
 
-## Context
-{context}
+SYSTEM_PROMPT = load_system_prompt()
 
-## Question
-{question}
-
-## Answer
-"""
-
-# Prompt variations for testing different configurations
+# Prompt variants (can also be loaded from MD)
 PROMPT_VARIANTS = {
     "strict": """You must answer ONLY based on the provided context. 
 If the answer is not explicitly stated, respond with: "I cannot determine the answer from the provided context."
@@ -32,3 +39,5 @@ If the context provides partial information, you may expand on it reasonably."""
     
     "detailed": """Provide comprehensive answers with full explanations and citations from the context."""
 }
+
+__all__ = ["SYSTEM_PROMPT", "PROMPT_VARIANTS", "load_system_prompt"]

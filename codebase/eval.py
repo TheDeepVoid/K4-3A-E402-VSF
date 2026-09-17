@@ -50,7 +50,6 @@ class AIEvaluator:
     
     def _build_messages(self, test_case: TestCase) -> List[Dict[str, str]]:
         """Build message list for the AI"""
-        # Format the system prompt with context and question
         formatted_prompt = self.system_prompt.format(
             context=test_case.context,
             question=test_case.question
@@ -71,7 +70,6 @@ class AIEvaluator:
             
             latency_ms = (time.time() - start_time) * 1000
             
-            # Check if test passed
             passed = self._check_answer(
                 response.content, 
                 test_case.expected_answer,
@@ -107,14 +105,15 @@ class AIEvaluator:
         
         # Handle "cannot determine" cases
         if expected_lower == "cannot determine":
-            # Should NOT contain hallucinated information
             cannot_determine_phrases = [
                 "cannot determine",
                 "cannot be determined",
                 "not specified",
                 "not mentioned",
                 "not provided",
-                "no information"
+                "no information",
+                "không xác định",
+                "không có thông tin"
             ]
             return any(phrase in actual_lower for phrase in cannot_determine_phrases)
         
@@ -192,7 +191,6 @@ async def run_evaluation(
 ) -> EvaluationSummary:
     """Run evaluation with specified provider"""
     
-    # Get API key from env or parameter
     import os
     api_key = api_key or os.getenv("OPENAI_API_KEY") or "dummy-key-for-testing"
     
@@ -204,7 +202,6 @@ async def run_evaluation(
         max_tokens=500
     )
     
-    # Select provider
     if provider_type == "openai":
         provider = OpenAIProvider(config)
     elif provider_type == "gemini":
