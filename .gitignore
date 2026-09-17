@@ -23,5 +23,9 @@ Thumbs.db
 npm-debug.log*
 
 # Data
-/Data
-/data
+Data
+data
+
+# Data pack lives under codebase/data/ (never commit it — security rule 3)
+codebase/data/
+further-reading
