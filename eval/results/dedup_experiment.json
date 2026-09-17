@@ -1,0 +1,46 @@
+{
+  "provider": "omniroute",
+  "model": "kiro/deepseek-3.2",
+  "prompt_version": "v1.1",
+  "method": "Spearman rho giữa ranking cluster raw và dedup",
+  "cases": {
+    "edge_002": {
+      "orig_clusters": [
+        {
+          "rank": 1,
+          "unique_students": 2,
+          "question_count": 4,
+          "concept": "Định nghĩa Context window"
+        }
+      ],
+      "dedup_clusters": [
+        {
+          "rank": 1,
+          "unique_students": 2,
+          "question_count": 2,
+          "concept": "Định nghĩa và ý nghĩa của Context Window"
+        }
+      ],
+      "rho_rank": 1.0,
+      "rho_unique_students": 1.0,
+      "rho_question_count": 0.0,
+      "concepts_unchanged": false
+    },
+    "miss_002": {
+      "orig_clusters": [
+        {
+          "rank": 1,
+          "unique_students": 2,
+          "question_count": 2,
+          "concept": "Sự khác biệt giữa Embedding và Fine-tuning"
+        }
+      ],
+      "dedup_clusters": [],
+      "rho_rank": 0.0,
+      "rho_unique_students": 0.0,
+      "rho_question_count": 0.0,
+      "concepts_unchanged": false
+    }
+  },
+  "avg_rho_rank": 0.5
+}

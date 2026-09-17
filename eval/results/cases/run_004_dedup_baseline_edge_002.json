@@ -1,0 +1,85 @@
+{
+  "test_id": "edge_002",
+  "timestamp": "2026-09-17T09:56:07.828033+00:00",
+  "provider": "omniroute",
+  "requested_model": "kiro/deepseek-3.2",
+  "prompt_version": "v1.0-dedup",
+  "prompt_file": "codebase/src/prompting/system_prompt.md",
+  "input": {
+    "task": "analyze_clusters",
+    "scope": {
+      "cohort": "K4",
+      "lecture": "D01",
+      "time_range": "2026-09-09 đến 2026-09-15"
+    },
+    "questions": [
+      {
+        "student": "S0081",
+        "is_preset": false,
+        "student_question": "Context window là gì?"
+      },
+      {
+        "student": "S0082",
+        "is_preset": false,
+        "student_question": "Context window của model nghĩa là gì?"
+      }
+    ],
+    "materials": [
+      {
+        "source_id": "[T04-051]",
+        "source_type": "transcript",
+        "content": "Context window là lượng thông tin model xử lý trong một lần."
+      }
+    ],
+    "selected_cluster": null,
+    "teacher_confirmed_source": false
+  },
+  "status": "NEEDS_REVIEW",
+  "passed": null,
+  "reason": "",
+  "actual_output": "```json\n{\n  \"status\": \"ok\",\n  \"scope\": {\n    \"cohort\": \"K4\",\n    \"lecture\": \"D01\",\n    \"time_range\": \"2026-09-09 đến 2026-09-15\"\n  },\n  \"summary\": {\n    \"valid_question_count\": 2,\n    \"excluded_preset_count\": 0,\n    \"excluded_empty_count\": 0,\n    \"cluster_count\": 1\n  },\n  \"clusters\": [\n    {\n      \"rank\": 1,\n      \"concept\": \"Khái niệm context window\",\n      \"unique_students\": 2,\n      \"question_count\": 2,\n      \"example_questions\": [\"Context window là gì?\", \"Context window của model nghĩa là gì?\"],\n      \"citations\": [\"[T04-051]\"],\n      \"grounding_status\": \"grounded\",\n      \"confidence\": \"high\",\n      \"warnings\": [],\n      \"notes\": \"Cả hai câu hỏi tập trung vào khái niệm 'context window', nguồn transcript giải thích ngắn gọn.\"\n    }\n  ],\n  \"warnings\": []\n}\n```",
+  "actual_model": "deepseek-3.2",
+  "response_status": "stop",
+  "usage": {
+    "completion_tokens": 193,
+    "prompt_tokens": 7417,
+    "total_tokens": 7610,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": null
+  },
+  "latency_ms": 8974,
+  "parsed_output": {
+    "status": "ok",
+    "scope": {
+      "cohort": "K4",
+      "lecture": "D01",
+      "time_range": "2026-09-09 đến 2026-09-15"
+    },
+    "summary": {
+      "valid_question_count": 2,
+      "excluded_preset_count": 0,
+      "excluded_empty_count": 0,
+      "cluster_count": 1
+    },
+    "clusters": [
+      {
+        "rank": 1,
+        "concept": "Khái niệm context window",
+        "unique_students": 2,
+        "question_count": 2,
+        "example_questions": [
+          "Context window là gì?",
+          "Context window của model nghĩa là gì?"
+        ],
+        "citations": [
+          "[T04-051]"
+        ],
+        "grounding_status": "grounded",
+        "confidence": "high",
+        "warnings": [],
+        "notes": "Cả hai câu hỏi tập trung vào khái niệm 'context window', nguồn transcript giải thích ngắn gọn."
+      }
+    ],
+    "warnings": []
+  }
+}

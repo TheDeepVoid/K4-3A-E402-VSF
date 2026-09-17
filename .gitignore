@@ -13,6 +13,9 @@ pycache/
 *.xls
 *.xlsm
 *.csv
+# Exceptions: eval test fixtures (small, tracked in repo)
+!eval/golden_set/*.csv
+!eval/results/*.csv
 
 # OS
 .DS_Store
