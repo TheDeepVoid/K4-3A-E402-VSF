@@ -11,11 +11,20 @@ codebase/
 ├── src/               ← source code chính
 │   ├── __init__.py
 │   ├── preprocessing/ ← làm sạch và chuẩn hóa data
-│   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   └── preprocess.py   ← tool `preprocess_questions` (lọc preset/rỗng, chuẩn hoá, dedupe)
 │   ├── clustering/    ← thuật toán gom nhóm câu hỏi
-│   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   └── cluster.py      ← tool `cluster_questions` (overlap/Jaccard trên từ khoá, deterministic)
 │   ├── grounding/     ← liên kết với học liệu
-│   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   └── ground.py       ← tool `ground_clusters` (tf-idf cụm ↔ segment [Txx-NNN], trả top-k + snippet)
+│   ├── tools/         ← function calling cho model (Person 1)
+│   │   ├── __init__.py
+│   │   ├── schemas.py      ← OpenAI tool schemas (3 tool trên)
+│   │   ├── registry.py     ← tên tool → hàm thực thi (+ wrapper an toàn)
+│   │   ├── engine.py       ← vòng lặp gọi-chạy-trả kết quả; tự inject pipeline nếu model không gọi tool
+│   │   └── selftest.py     ← kiểm thử tool calling với API thật
 │   ├── ui/            ← giao diện người dùng (functional web UI)
 │   │   ├── __init__.py
 │   │   ├── app.py     ← HTTP server + API gọi pipeline AI thật (stdlib, không cần cài thêm)
@@ -45,6 +54,7 @@ codebase/
 ├── tests/             # unit tests
 │   ├── __init__.py
 │   ├── test_cases.py  # Golden test set loader (Person 3)
+│   ├── test_tools.py  # Unit test 3 module tool + engine (chạy `python -m unittest tests.test_tools`)
 │   └── fixtures/
 │       └── test_cases_template.md
 └── requirements.txt   # Dependencies
@@ -101,15 +111,37 @@ UI tự chọn provider: ưu tiên `omniroute` nếu có `OMNIROUTE_API_KEY` (ro
 gửi data ra ngoài), rồi mới đến `DEFAULT_PROVIDER`/`openai`. Cấu hình tương tự
 `run_cases.py`: `<PROVIDER>_API_KEY / <PROVIDER>_BASE_URL / <PROVIDER>_MODEL`.
 
+Model được trang bị **3 tool function calling** (xem `src/tools/`):
+- `preprocess_questions(questions)` — lọc is_preset/câu rỗng, chuẩn hoá, dedupe theo học viên
+- `cluster_questions(questions)` — cụm chủ đề thô (overlap coeff trên unigram+bigram)
+- `ground_clusters(clusters, materials)` — tìm đoạn `[Txx-NNN]` khớp từ khoá (tf-idf) kèm snippet
+
+`tools/engine.py` chạy vòng lặp function calling. Mặc định **preinject**: engine chạy sẵn
+chuỗi deterministic preprocess → cluster → ground và ghi thành các message
+`assistant(tool_calls)` + `tool(result)` THẬT vào lịch sử, rồi model chỉ cần 1 round
+(`create`) để tổng hợp output cuối (nhanh ~5–7× so với 3–4 round). Model vốn đã tự gọi
+tool native (đã xác minh với OmniRoute), và engine vẫn nhận tool call ở cả 2 dạng:
+field `tool_calls` chuẩn của OpenAI lẫn `<function_calls>` trong content (DeepSeek/
+ApiMoose style — tự giải nén); nếu vòng đầu model không gọi tool thì engine inject luôn.
+Dù model có gọi hay không, 3 tool LUÔN chạy — dữ liệu thật và deterministic, model chỉ
+phán đoán + viết output theo schema v1.2.
+
+Kiểm tra nhanh (không cần khởi động UI):
+```bash
+python -m unittest tests.test_tools            # 16 unit test deterministic
+python src/tools/selftest.py                   # gọi tool với API thật (OmniRoute local)
+```
+
 API (frontend gọi qua fetch):
 - `GET /api/health` → provider/model đang dùng, có key hay không (không trả secret)
 - `GET /api/meta` → cohort/bài giảng/thời gian có trong data pack + metadata 6 transcript
-- `POST /api/analyze` → lọc câu hỏi thật theo scope (bỏ preset/câu rỗng bằng code),
-  gom cluster bằng system prompt (task=`analyze_clusters`)
-- `POST /api/card` → tạo thẻ ôn 5 phút (task=`review_card`, `teacher_confirmed_source=true`)
+- `POST /api/analyze` → gửi câu hỏi thật theo scope (code chỉ lọc scope; preset/rỗng/dedupe
+  do tool `preprocess_questions` xử lý) → model gom cụm (task=`analyze_clusters`)
+- `POST /api/card` → tạo thẻ ôn 5 phút (task=`review_card`, `teacher_confirmed_source=true`),
+  tool `ground_clusters` tìm nguồn cho selected_cluster
 
-Bảo mật: client chỉ nhận cluster đã ẩn danh + số liệu aggregate — KHÔNG nhận câu hỏi
-nguyên văn hay mã học viên.
+Bảo mật: client chỉ nhận cluster đã ẩn danh + số liệu aggregate + tên tool đã chạy — KHÔNG
+nhận câu hỏi nguyên văn hay mã học viên.
 
 ## Roles
 

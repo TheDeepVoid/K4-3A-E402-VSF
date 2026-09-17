@@ -210,9 +210,11 @@ async function init(){
   $('budgetVal').textContent = fmtBudget(Number($('budgetRange').value));
   $('budgetRange').addEventListener('input', () =>
     $('budgetVal').textContent = fmtBudget(Number($('budgetRange').value)));
-  $('ownMethod').innerHTML = '<b>Tiền xử lý bằng code trước khi gọi AI:</b> ' +
-    'lọc <code>is_preset</code>, loại câu rỗng, giới hạn số câu mới nhất — ' +
-    'model nhận câu thật đã lọc và transcripts thật đã chọn.';
+  $('ownMethod').innerHTML = '<b>Model được trang bị tools (function calling):</b> ' +
+    '<code>preprocess_questions</code> (lọc preset/câu rỗng, chuẩn hoá, dedupe), ' +
+    '<code>cluster_questions</code> (gom cụm thô), <code>ground_clusters</code> ' +
+    '(tìm đoạn <code>[Txx-NNN]</code> khớp từ khoá). Code chỉ lọc phạm vi + chọn ' +
+    'transcripts thật; preset/rỗng/dedupe do tool của model xử lý.';
 }
 function fmtBudget(n){ return n.toLocaleString('vi-VN') + ' ký tự · chia đều theo nguồn'; }
 
@@ -326,10 +328,18 @@ function hideAllStates(){
 function summaryLine(res){
   const d = res.data || {};
   const o = res.output || {};
-  let s = 'Phạm vi: ' + d.scope_questions + ' câu hợp lệ · đã loại ' +
-    d.excluded_preset + ' preset · ' + d.excluded_empty + ' câu rỗng bằng code · gửi ' +
-    d.sent + ' câu mới nhất · materials ' + d.materials_chars.toLocaleString('vi-VN') +
-    ' ký tự / ' + d.materials_segments + ' đoạn';
+  const sum = (o.summary) || {};
+  const fmt = n => (n == null ? '?' : n.toLocaleString('vi-VN'));
+  let s = 'Phạm vi: ' + fmt(d.scope_rows) + ' lượt hỏi · gửi model ' + fmt(d.sent) +
+    ' câu mới nhất (gồm ' + fmt(d.preset_in_sent) + ' preset) · materials ' +
+    fmt(d.materials_chars) + ' ký tự / ' + d.materials_segments + ' đoạn';
+  if (sum.valid_question_count != null) {
+    s += '. Sau tool preprocess: ' + fmt(sum.valid_question_count) + ' câu hợp lệ' +
+      ' (loại ' + fmt(sum.excluded_preset_count) + ' preset, ' +
+      fmt(sum.excluded_empty_count) + ' rỗng)';
+  }
+  const tools = (d.tools_used || []);
+  if (tools.length) s += '. AI đã gọi tools: ' + tools.join(', ');
   const sw = (o.warnings || []).join('; ');
   if (sw) s += '. Cảnh báo: ' + sw;
   return s;
@@ -339,9 +349,8 @@ function renderResult(res){
   const clusters = (o && o.clusters) || [];
   if (res.status === 'no_valid_questions' || (!o)){
     $('noneState').hidden = false;
-    $('noneText').textContent = (res.data && res.data.scope_questions === 0)
-      ? 'Không có câu hỏi hợp lệ đúng trong phạm vi này (đã loại '
-        + (res.data.excluded_preset + res.data.excluded_empty) + ' preset/câu rỗng bằng code).'
+    $('noneText').textContent = (res.data && res.data.scope_rows === 0)
+      ? 'Không có lượt hỏi nào trong phạm vi này (scope trống) — hãy chọn module/thời gian khác.'
       : summaryLine(res);
     return;
   }

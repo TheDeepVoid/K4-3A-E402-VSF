@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
 """VLearn Pulse — functional web UI (stdlib HTTP server, không cần cài thêm gì).
 
-Server phục vụ file giao diện và các API gọi pipeline AI thật:
+Server phục vụ file giao diện và các API gọi pipeline AI thật (có function
+calling tools cho model):
   GET  /                → index.html
   GET  /api/health      → provider/model đang dùng, key có sẵn hay không
   GET  /api/meta        → cohort/lecture có trong data pack + danh sách học liệu
-  POST /api/analyze     → lọc câu hỏi thật từ tutor_turns.csv theo scope,
-                          gom cluster bằng system prompt (task=analyze_clusters)
+  POST /api/analyze     → lọc câu hỏi thật từ tutor_turns.csv theo scope, đưa
+                          vào payload task=analyze_clusters; model được trang bị
+                          tools preprocess_questions / cluster_questions /
+                          ground_clusters (xem codebase/src/tools/)
   POST /api/card        → tạo thẻ ôn 5 phút (task=review_card,
-                          teacher_confirmed_source=true)
+                          teacher_confirmed_source=true) — cùng cơ chế tools
 
 Bảo mật:
 - Chỉ lắng nghe trên 127.0.0.1 (mặc định) — data pack nhạy cảm.
 - Không in/hiện API key hay base URL; client chỉ nhận provider + model.
 - Client KHÔNG nhận câu hỏi nguyên văn hay mã học viên — chỉ nhận cluster
-  (example_questions đã ẩn danh) và số liệu aggregate.
+  (example_questions đã ẩn danh), số liệu aggregate và tên tool đã chạy.
 
 Cấu hình (qua .env hoặc biến môi trường, giống run_cases.py):
   UI_PROVIDER / DEFAULT_PROVIDER   — provider (openai|openrouter|omniroute|gemini)
@@ -40,28 +43,20 @@ SRC = ROOT / "codebase/src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from env import get_api_key  # noqa: E402
 from prompting.prompts import SYSTEM_PROMPT  # noqa: E402  (bản đang giữ — v1.2)
-from openai import OpenAI  # noqa: E402
+from tools.engine import (  # noqa: E402
+    get_engine_config, call_llm_with_tools,
+)
 
 DATA_DIR = ROOT / "codebase/data/vlearn-pack"
 CSV_PATH = DATA_DIR / "chatlog/tutor_turns.csv"
 TRANS_DIR = DATA_DIR / "transcript"
 UI_DIR = Path(__file__).resolve().parent
 
-PROVIDERS = ("openai", "openrouter", "omniroute", "gemini")
-MODEL_DEFAULTS = {
-    "openai": "gpt-5-nano",
-    "openrouter": "openai/gpt-4o-mini",
-    "omniroute": "kiro/deepseek-3.2",
-    "gemini": "gemini-2.0-flash",
-}
-BASE_URL_DEFAULTS = {
-    "openai": None,
-    "openrouter": "https://openrouter.ai/api/v1",
-    "omniroute": None,  # bắt buộc từ <P>_BASE_URL — ví dụ local router
-    "gemini": "https://generativelanguage.googleapis.com/v1beta/openai/",
-}
+ENGINE_CONFIG = get_engine_config()
+PROVIDER = ENGINE_CONFIG["provider"]
+MODEL = ENGINE_CONFIG["model"]
+HAS_KEY = bool(ENGINE_CONFIG["api_key"])
 DEFAULT_CHAR_BUDGET = 30_000
 MAX_CHAR_BUDGET = 120_000
 DEFAULT_SAMPLE_SIZE = 200
@@ -69,66 +64,21 @@ MAX_SAMPLE_SIZE = 800
 
 SEG_RE = re.compile(r"^\*\*\[(T\d{2}-\d{3})\]\*\*(.*)$")
 
-# ---------------- provider / LLM ----------------
-
-_client = None
-_client_lock = threading.Lock()
-_PROVIDER = _MODEL = _API_KEY = _BASE_URL = None
+# ---------------- gọi model (có tools) ----------------
+# Cấu hình provider/client + vòng lặp function calling nằm ở tools/engine.py;
+# ở đây chỉ giữ extract_json dùng chung cho analyze/card.
 
 
-def resolve_provider():
-    """Trả về (provider, api_key, base_url, model) theo env; không in secret."""
-    global _PROVIDER, _MODEL, _API_KEY, _BASE_URL
+def call_llm(payload: dict) -> tuple[str, list, str]:
+    """Gọi model với system prompt hiện tại + tools preprocess/cluster/ground.
 
-    provider = os_environ("UI_PROVIDER") or os_environ("DEFAULT_PROVIDER") or ""
-    if provider not in PROVIDERS:
-        # Ưu tiên router local (không gửi data ra ngoài), rồi mới openai.
-        provider = "omniroute" if get_api_key("omniroute") else "openai"
-    api_key = get_api_key(provider)
-    base_url = (os_environ(f"{provider.upper()}_BASE_URL")
-                or BASE_URL_DEFAULTS.get(provider))
-    model = (os_environ(f"{provider.upper()}_MODEL")
-             or os_environ("DEFAULT_MODEL") or MODEL_DEFAULTS[provider])
-
-    _PROVIDER, _MODEL, _API_KEY, _BASE_URL = provider, model, api_key, base_url
-
-
-def os_environ(name):
-    import os
-    return os.environ.get(name) or ""
-
-
-def get_client():
-    global _client
-    with _client_lock:
-        if _client is None:
-            kwargs = {"api_key": _API_KEY, "timeout": 330.0, "max_retries": 0}
-            if _BASE_URL:
-                kwargs["base_url"] = _BASE_URL
-            _client = OpenAI(**kwargs)
-        return _client
-
-
-def call_llm(payload: dict) -> tuple[str, str]:
-    """Gọi model với system prompt hiện tại. Trả (raw_text, error)."""
-    try:
-        response = get_client().chat.completions.create(
-            model=_MODEL,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": json.dumps(payload, ensure_ascii=False)},
-            ],
-            temperature=0.3,
-            max_tokens=6000,
-            timeout=300.0,
-        )
-        return (response.choices[0].message.content or ""), ""
-    except Exception as exc:  # noqa: BLE001 — báo lỗi lên UI
-        return "", f"{type(exc).__name__}: {exc}"
+    Trả về (final_text, trace, error); trace là list tool call đã chạy.
+    """
+    return call_llm_with_tools(payload, SYSTEM_PROMPT)
 
 
 def extract_json(text):
-    """Lấy JSON từ text output; chịu được code fence ```json ... ```."""
+    """Lấy JSON từ text output; chịu được code fence ```json ... ``` và lời dẫn/đuôi bằng prose trước/sau JSON."""
     data = text.strip()
     while data.startswith("```"):
         nl = data.find("\n")
@@ -137,10 +87,33 @@ def extract_json(text):
         data = data.strip()
         if data.endswith("```"):
             data = data[:-3].rstrip()
-    start, end = data.find("{"), data.rfind("}")
-    if start != -1 and end != -1 and end > start:
-        data = data[start:end + 1]
-    return json.loads(data)
+    start = data.find("{")
+    if start == -1:
+        raise ValueError("Không tìm thấy dấu { trong output của model")
+    # Quét cặp ngoặc cân bằng (bỏ qua ngoặc trong chuỗi) để không nuốt prose phía sau.
+    depth, in_str, esc, end = 0, False, False, None
+    for i in range(start, len(data)):
+        ch = data[i]
+        if in_str:
+            if esc:
+                esc = False
+            elif ch == "\\":
+                esc = True
+            elif ch == '"':
+                in_str = False
+            continue
+        if ch == '"':
+            in_str = True
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                end = i
+                break
+    if end is None:
+        raise ValueError("JSON không đóng ngoặc đúng cách trong output của model")
+    return json.loads(data[start:end + 1])
 
 
 # ---------------- dữ liệu ----------------
@@ -161,10 +134,6 @@ def dataset():
 
 def _is_preset(row):
     return (row.get("is_preset") or "").strip().lower() == "true"
-
-
-def _qtext(row):
-    return (row.get("student_question") or "").strip()
 
 
 def _asked(row):
@@ -304,7 +273,11 @@ def select_materials(ids, budget):
 
 
 def filter_questions(cohort, code, title, time_mode):
-    """Lọc câu hỏi thật theo scope; trả về dict tổng hợp."""
+    """Lọc câu hỏi theo scope (khoá / bài giảng / thời gian) — KHÔNG lọc preset.
+
+    Preset/rỗng/dedupe giờ do tool `preprocess_questions` của model xử lý.
+    Trả về list row đã sắp theo thời gian (mới nhất cuối).
+    """
     rows = dataset()
     date_min, date_max = None, None
     now_max = None
@@ -334,29 +307,29 @@ def filter_questions(cohort, code, title, time_mode):
         if date_max is not None and (d is None or d > date_max):
             continue
         scoped.append(r)
+    scoped.sort(key=lambda r: (r.get("asked_at_vn") or ""))
+    return scoped
 
-    presets = sum(1 for r in scoped if _is_preset(r))
-    valids, empties = [], 0
-    for r in scoped:
-        if _is_preset(r):
-            continue
-        if not _qtext(r):
-            empties += 1
-            continue
-        q = {
-            "student": (r.get("student") or "").strip() or None,
-            "is_preset": False,
-            "asked_at_vn": (r.get("asked_at_vn") or "").strip()[:16],
-            "student_question": r["student_question"].strip(),
-        }
-        valids.append(q)
-    valids.sort(key=lambda q: q["asked_at_vn"])
+
+def _to_question_row(r):
+    """Chuyển 1 dòng CSV thành object câu hỏi cho payload (giữ is_preset)."""
     return {
-        "valids": valids,
-        "excluded_preset": presets,
-        "excluded_empty": empties,
-        "total_scoped": len(scoped),
+        "student": (r.get("student") or "").strip() or None,
+        "is_preset": _is_preset(r),
+        "asked_at_vn": (r.get("asked_at_vn") or "").strip()[:16],
+        "student_question": (r.get("student_question") or "").strip(),
     }
+
+
+def trace_tools_used(trace):
+    """Tên tool đã chạy, theo thứ tự xuất hiện, không trùng lặp."""
+    seen, out = set(), []
+    for t in trace or []:
+        name = t.get("tool") or ""
+        if name and name not in seen:
+            seen.add(name)
+            out.append(name)
+    return out
 
 
 def scope_label(cohort, code, title, time_mode):
@@ -385,21 +358,21 @@ def build_analyze(req) -> dict:
     if not transcripts:
         return {"ok": False, "error": "Chưa chọn nguồn học liệu nào."}
 
-    qs = filter_questions(cohort, code, title, time_mode)
-    sent = qs["valids"][-sample:]
+    scoped = filter_questions(cohort, code, title, time_mode)
     materials, chars = select_materials(transcripts, budget)
+    sent_rows = scoped[-sample:]
+    sent = [_to_question_row(r) for r in sent_rows]
 
     if not sent:
         return {
             "ok": True,
             "status": "no_valid_questions",
             "data": {
-                "scope_questions": len(qs["valids"]),
-                "excluded_preset": qs["excluded_preset"],
-                "excluded_empty": qs["excluded_empty"],
+                "scope_rows": len(scoped),
                 "sent": 0,
                 "materials_segments": len(materials),
                 "materials_chars": chars,
+                "tools_used": [],
             },
             "output": None,
         }
@@ -416,7 +389,7 @@ def build_analyze(req) -> dict:
         "teacher_confirmed_source": False,
     }
 
-    raw, err = call_llm(payload)
+    raw, trace, err = call_llm(payload)
     if err:
         return {"ok": False, "error": f"Lỗi gọi model: {err}"}
     try:
@@ -431,12 +404,12 @@ def build_analyze(req) -> dict:
         "status": parsed.get("status", ""),
         "output": parsed,
         "data": {
-            "scope_questions": len(qs["valids"]),
-            "excluded_preset": qs["excluded_preset"],
-            "excluded_empty": qs["excluded_empty"],
+            "scope_rows": len(scoped),
             "sent": len(sent),
+            "preset_in_sent": sum(1 for q in sent if q["is_preset"]),
             "materials_segments": len(materials),
             "materials_chars": chars,
+            "tools_used": trace_tools_used(trace),
         },
     }
 
@@ -477,7 +450,7 @@ def build_card(req) -> dict:
         "teacher_confirmed_source": True,
     }
 
-    raw, err = call_llm(payload)
+    raw, trace, err = call_llm(payload)
     if err:
         return {"ok": False, "error": f"Lỗi gọi model: {err}"}
     try:
@@ -491,7 +464,8 @@ def build_card(req) -> dict:
         "ok": True,
         "status": parsed.get("status", ""),
         "output": parsed,
-        "data": {"materials_segments": len(materials), "materials_chars": chars},
+        "data": {"materials_segments": len(materials), "materials_chars": chars,
+                 "tools_used": trace_tools_used(trace)},
     }
 
 
@@ -540,9 +514,9 @@ class Handler(BaseHTTPRequestHandler):
         elif path == "/api/health":
             self._json(200, {
                 "ok": True,
-                "provider": _PROVIDER,
-                "model": _MODEL,
-                "has_key": bool(_API_KEY),
+                "provider": PROVIDER,
+                "model": MODEL,
+                "has_key": HAS_KEY,
             })
         elif path == "/api/meta":
             self._json(200, {"ok": True, "meta": build_meta()})
@@ -575,17 +549,17 @@ def main():
     if not CSV_PATH.exists():
         print("THIEU data pack:", CSV_PATH)
         return
-    resolve_provider()
     meta = build_meta()
     print("VLearn Pulse UI")
     print("  data   :", CSV_PATH.name, f"({sum(1 for _ in dataset())} dong)")
     print("  prompt :", SYSTEM_PROMPT[:60].replace("\n", " ") or "(doc tu codebase/src/prompting/system_prompt.md)")
-    print("  provider:", _PROVIDER, "| model:", _MODEL,
-          "| key:", "co" if _API_KEY else "THIEU")
+    print("  provider:", PROVIDER, "| model:", MODEL,
+          "| key:", "co" if HAS_KEY else "THIEU",
+          "| tools: preprocess_questions, cluster_questions, ground_clusters")
     print("  meta   :", len(meta["cohorts"]), "cohort,",
           sum(1 for c in meta["cohorts"] if c["cohort"]) , "khoa, ",
           len(meta["lectures"]), "bai giang,", len(meta["transcripts"]), "transcript")
-    if not _API_KEY:
+    if not HAS_KEY:
         print("  CANH BAO: thieu API key — /api/analyze va /api/card se loi.")
     print("  URL    : http://%s:%d/" % (host, port))
 
