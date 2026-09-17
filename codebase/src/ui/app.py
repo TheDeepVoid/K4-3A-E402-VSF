@@ -428,8 +428,17 @@ def build_card(req) -> dict:
 
     materials, chars = select_materials(transcripts, budget)
     visible = {s["source_id"] for s in materials}
-    citations = [c for c in (cluster.get("citations") or []) if c in visible] \
-        or [c for c in (cluster.get("citations") or [])]
+    citations = [c for c in (cluster.get("citations") or []) if c in visible]
+
+    # Determine if teacher has confirmed a valid source:
+    # - If request explicitly provides teacher_confirmed_source, use it but validate against has_valid_citations
+    # - Otherwise, infer from whether there are valid citations in the materials
+    has_valid_citations = len(citations) > 0
+    req_confirmed = req.get("teacher_confirmed_source")
+    if req_confirmed is not None:
+        teacher_confirmed = bool(req_confirmed and has_valid_citations)
+    else:
+        teacher_confirmed = has_valid_citations
 
     selected_cluster = {
         "cluster_id": "manual",
@@ -448,7 +457,7 @@ def build_card(req) -> dict:
         "questions": [],
         "materials": materials,
         "selected_cluster": selected_cluster,
-        "teacher_confirmed_source": True,
+        "teacher_confirmed_source": teacher_confirmed,
     }
 
     raw, trace, err = call_llm(payload)
