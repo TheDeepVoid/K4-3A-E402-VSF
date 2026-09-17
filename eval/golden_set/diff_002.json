@@ -1,0 +1,34 @@
+{
+  "task": "analyze_clusters",
+  "scope": {
+    "cohort": "K4",
+    "lecture": "D01",
+    "time_range": "2026-09-09 đến 2026-09-15"
+  },
+  "questions": [
+    {
+      "student": "S0051",
+      "is_preset": false,
+      "student_question": "Em thấy model chạy không đúng."
+    }
+  ],
+  "materials": [
+    {
+      "source_id": "[T04-047]",
+      "source_type": "transcript",
+      "content": "LLM dự đoán token tiếp theo."
+    },
+    {
+      "source_id": "[T04-048]",
+      "source_type": "transcript",
+      "content": "Văn bản nghe hợp lý vẫn có thể sai (hallucination)."
+    },
+    {
+      "source_id": "[T04-051]",
+      "source_type": "transcript",
+      "content": "Context window là lượng thông tin model xử lý trong một lần."
+    }
+  ],
+  "selected_cluster": null,
+  "teacher_confirmed_source": false
+}

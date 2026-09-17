@@ -1,0 +1,29 @@
+{
+  "task": "analyze_clusters",
+  "scope": {
+    "cohort": "K4",
+    "lecture": "D01",
+    "time_range": "2026-09-09 đến 2026-09-15"
+  },
+  "questions": [
+    {
+      "student": "S0040",
+      "is_preset": false,
+      "student_question": "Attention là gì?"
+    },
+    {
+      "student": null,
+      "is_preset": false,
+      "student_question": "Cơ chế attention có tác dụng gì?"
+    }
+  ],
+  "materials": [
+    {
+      "source_id": "[T04-040]",
+      "source_type": "transcript",
+      "content": "Transformer dùng attention để nhận diện quan hệ giữa từ trong cả câu."
+    }
+  ],
+  "selected_cluster": null,
+  "teacher_confirmed_source": false
+}

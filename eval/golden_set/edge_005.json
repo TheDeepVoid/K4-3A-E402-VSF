@@ -1,0 +1,26 @@
+{
+  "task": "review_card",
+  "scope": {
+    "cohort": "K4",
+    "lecture": "D01",
+    "time_range": "2026-09-09 đến 2026-09-15"
+  },
+  "questions": [],
+  "materials": [
+    {
+      "source_id": "[T04-049]",
+      "source_type": "transcript",
+      "content": "Token là đơn vị văn bản mà mô hình xử lý; một token không nhất thiết tương ứng với một từ."
+    },
+    {
+      "source_id": "[T04-050]",
+      "source_type": "transcript",
+      "content": "Tokenization là quá trình chia văn bản thành token. Số token phụ thuộc vào bộ tokenizer và văn bản của từng ngôn ngữ."
+    }
+  ],
+  "selected_cluster": {
+    "concept": "Token và tokenization",
+    "citations": ["[T04-049]", "[T04-050]"]
+  },
+  "teacher_confirmed_source": false
+}

@@ -1,0 +1,39 @@
+{
+  "task": "analyze_clusters",
+  "scope": {
+    "cohort": "K4",
+    "lecture": "D01",
+    "time_range": "2026-09-09 đến 2026-09-15"
+  },
+  "questions": [
+    {
+      "student": "S0050",
+      "is_preset": false,
+      "student_question": "Context window lớn có làm attention kém và hallucination nhiều hơn không?"
+    }
+  ],
+  "materials": [
+    {
+      "source_id": "[T04-048]",
+      "source_type": "transcript",
+      "content": "Văn bản nghe hợp lý vẫn có thể sai (hallucination)."
+    },
+    {
+      "source_id": "[T04-051]",
+      "source_type": "transcript",
+      "content": "Context window là lượng thông tin model xử lý trong một lần."
+    },
+    {
+      "source_id": "[T04-052]",
+      "source_type": "transcript",
+      "content": "Context quá nhiều có thể làm model kém hiệu quả hơn."
+    },
+    {
+      "source_id": "[T04-053]",
+      "source_type": "transcript",
+      "content": "Cần đưa context chọn lọc, chất lượng."
+    }
+  ],
+  "selected_cluster": null,
+  "teacher_confirmed_source": false
+}

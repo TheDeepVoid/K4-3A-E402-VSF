@@ -1,0 +1,39 @@
+{
+  "task": "analyze_clusters",
+  "scope": {
+    "cohort": "K4",
+    "lecture": "D01",
+    "time_range": "2026-09-09 đến 2026-09-15"
+  },
+  "questions": [
+    {
+      "student": "S0060",
+      "is_preset": false,
+      "student_question": "Token có phải là một từ không?"
+    },
+    {
+      "student": "S0061",
+      "is_preset": false,
+      "student_question": "Vì sao tiếng Việt tốn token hơn tiếng Anh?"
+    },
+    {
+      "student": "S0062",
+      "is_preset": false,
+      "student_question": "Model tách chữ thành token như nào?"
+    }
+  ],
+  "materials": [
+    {
+      "source_id": "[T04-049]",
+      "source_type": "transcript",
+      "content": "Token là đơn vị văn bản mà mô hình xử lý; một token không nhất thiết tương ứng với một từ."
+    },
+    {
+      "source_id": "[T04-050]",
+      "source_type": "transcript",
+      "content": "Tokenization là quá trình chia văn bản thành token. Số token phụ thuộc vào bộ tokenizer và văn bản của từng ngôn ngữ; không có một tỷ lệ quy đổi từ sang token cố định cho mọi ngôn ngữ."
+    }
+  ],
+  "selected_cluster": null,
+  "teacher_confirmed_source": false
+}

@@ -1,0 +1,39 @@
+{
+  "task": "analyze_clusters",
+  "scope": {
+    "cohort": "K4",
+    "lecture": "D01",
+    "time_range": "2026-09-09 đến 2026-09-15"
+  },
+  "questions": [
+    {
+      "student": "S0001",
+      "is_preset": false,
+      "student_question": "Transformer khác RNN ở điểm nào ạ?"
+    },
+    {
+      "student": "S0002",
+      "is_preset": false,
+      "student_question": "Vì sao RNN hay quên từ ở đầu câu dài?"
+    },
+    {
+      "student": "S0003",
+      "is_preset": false,
+      "student_question": "Attention giúp mô hình đọc cả câu thế nào?"
+    }
+  ],
+  "materials": [
+    {
+      "source_id": "[T04-039]",
+      "source_type": "transcript",
+      "content": "RNN xử lý tuần tự và khó giữ thông tin ở câu dài."
+    },
+    {
+      "source_id": "[T04-040]",
+      "source_type": "transcript",
+      "content": "Transformer dùng attention để nhận diện quan hệ giữa từ trong cả câu."
+    }
+  ],
+  "selected_cluster": null,
+  "teacher_confirmed_source": false
+}

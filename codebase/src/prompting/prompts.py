@@ -5,24 +5,28 @@ from pathlib import Path
 SYSTEM_PROMPT_PATH = Path(__file__).parent / "system_prompt.md"
 
 def load_system_prompt() -> str:
-    """Load the default system prompt from MD file"""
-    content = SYSTEM_PROMPT_PATH.read_text()
-    # Extract the default prompt between the first ``` fences
-    lines = content.split('\n')
+    """Đọc system prompt từ khối text đầu tiên trong Markdown."""
+    content = SYSTEM_PROMPT_PATH.read_text(encoding="utf-8")
+    lines = content.splitlines()
+
     in_code_block = False
     prompt_lines = []
-    
+
     for line in lines:
-        if line.strip() == '```':
-            if in_code_block:
-                break  # End of default prompt
-            else:
+        if not in_code_block:
+            if line.strip() == "```text":
                 in_code_block = True
-                continue
-        if in_code_block and line.strip():
-            prompt_lines.append(line)
-    
-    return '\n'.join(prompt_lines)
+            continue
+
+        if line.strip() == "```":
+            prompt = "\n".join(prompt_lines).strip()
+            if not prompt:
+                raise ValueError("Khối system prompt đang rỗng.")
+            return prompt
+
+        prompt_lines.append(line)
+
+    raise ValueError("Không tìm thấy khối ```text hoàn chỉnh.")
 
 SYSTEM_PROMPT = load_system_prompt()
 
