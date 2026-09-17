@@ -1,0 +1,39 @@
+{
+  "task": "analyze_clusters",
+  "scope": {
+    "cohort": "K4",
+    "lecture": "D01",
+    "time_range": "2026-09-09 đến 2026-09-15"
+  },
+  "questions": [
+    {
+      "student": "S0100",
+      "is_preset": false,
+      "student_question": "Thiết kế mạch lượng tử như thế nào?"
+    },
+    {
+      "student": "S0101",
+      "is_preset": false,
+      "student_question": "Em muốn tìm hiểu cách thiết kế mạch lượng tử."
+    },
+    {
+      "student": "S0102",
+      "is_preset": false,
+      "student_question": "Các bước thiết kế mạch lượng tử là gì?"
+    }
+  ],
+  "materials": [
+    {
+      "source_id": "[T04-047]",
+      "source_type": "transcript",
+      "content": "LLM dự đoán token tiếp theo."
+    },
+    {
+      "source_id": "[T04-049]",
+      "source_type": "transcript",
+      "content": "Token là đơn vị văn bản mà mô hình xử lý."
+    }
+  ],
+  "selected_cluster": null,
+  "teacher_confirmed_source": false
+}

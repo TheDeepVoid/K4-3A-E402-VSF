@@ -1,0 +1,44 @@
+{
+  "task": "analyze_clusters",
+  "scope": {
+    "cohort": "K4",
+    "lecture": "D01",
+    "time_range": "2026-09-09 đến 2026-09-15"
+  },
+  "questions": [
+    {
+      "student": "S0010",
+      "is_preset": false,
+      "student_question": "LLM có thực sự hiểu hay chỉ đoán từ tiếp theo?"
+    },
+    {
+      "student": "S0010",
+      "is_preset": false,
+      "student_question": "Bản chất LLM có phải dự đoán token tiếp theo không?"
+    },
+    {
+      "student": "S0010",
+      "is_preset": false,
+      "student_question": "Vì sao AI có thể hallucinate?"
+    },
+    {
+      "student": "S0011",
+      "is_preset": false,
+      "student_question": "LLM đoán token thì có thể trả lời sai đúng không?"
+    }
+  ],
+  "materials": [
+    {
+      "source_id": "[T04-047]",
+      "source_type": "transcript",
+      "content": "LLM dự đoán token tiếp theo."
+    },
+    {
+      "source_id": "[T04-048]",
+      "source_type": "transcript",
+      "content": "Văn bản nghe hợp lý vẫn có thể sai (hallucination)."
+    }
+  ],
+  "selected_cluster": null,
+  "teacher_confirmed_source": false
+}
