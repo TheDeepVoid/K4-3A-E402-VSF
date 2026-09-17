@@ -39,18 +39,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
-ROOT = Path(__file__).resolve().parents[3]
-SRC = ROOT / "codebase/src"
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
-
 # -------------------- argument parsing --------------------
 def parse_args():
     parser = argparse.ArgumentParser(
         description="VLearn Pulse — functional web UI (stdlib HTTP server, không cần cài thêm gì).")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8701)
-    parser.add_argument("--no_browser", action="store_true")
+    parser.add_argument("--no_browser", action="store_true", help="Disable auto-opening browser.")
     # New arguments for provider and model selector (like run_cases.py)
     parser.add_argument("--provider", choices=["openai", "openrouter", "omniroute", "gemini"],
                         default=None,
@@ -63,22 +58,38 @@ def parse_args():
                         help="Ghi đè API key (mặc định <PROVIDER>_API_KEY)")
     return parser.parse_args()
 
-# Set environment variables based on CLI args (if provided) before loading config
 args = parse_args()
-if args.provider:
-    os.environ["DEFAULT_PROVIDER"] = args.provider
-if args.model:
-    # Determine provider for model env var (use args.provider if set, else from env or default)
-    provider_for_model = args.provider or os.environ.get("DEFAULT_PROVIDER", "openai")
-    os.environ[f"{provider_for_model.upper()}_MODEL"] = args.model
-if args.base_url:
-    provider_for_base = args.provider or os.environ.get("DEFAULT_PROVIDER", "openai")
-    os.environ[f"{provider_for_base.upper()}_BASE_URL"] = args.base_url
-if args.api_key:
-    provider_for_key = args.provider or os.environ.get("DEFAULT_PROVIDER", "openai")
-    os.environ[f"{provider_for_key.upper()}_API_KEY"] = args.api_key
 
-# Now import modules that depend on the environment
+ROOT = Path(__file__).resolve().parents[3]
+SRC = ROOT / "codebase/src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+from env import get_api_key
+PROVIDERS = ("openai", "openrouter", "omniroute", "gemini")
+
+if args.provider:
+    chosen_provider = args.provider
+else:
+    # Use environment or default logic
+    chosen_provider = os.environ.get("UI_PROVIDER") or os.environ.get("DEFAULT_PROVIDER") or ""
+    if chosen_provider not in PROVIDERS:
+        chosen_provider = "omniroute" if get_api_key("omniroute") else "openai"
+
+# Set the environment variables for the chosen provider
+os.environ["DEFAULT_PROVIDER"] = chosen_provider
+if args.model:
+    os.environ[f"{chosen_provider.upper()}_MODEL"] = args.model
+if args.base_url:
+    os.environ[f"{chosen_provider.upper()}_BASE_URL"] = args.base_url
+if args.api_key:
+    os.environ[f"{chosen_provider.upper()}_API_KEY"] = args.api_key
+
+DATA_DIR = ROOT / "codebase/data/vlearn-pack"
+CSV_PATH = DATA_DIR / "chatlog/tutor_turns.csv"
+TRANS_DIR = DATA_DIR / "transcript"
+UI_DIR = Path(__file__).resolve().parent
+
 from prompting.prompts import SYSTEM_PROMPT  # noqa: E402  (bản đang giữ — v1.2)
 from tools.engine import (  # noqa: E402
     get_engine_config, call_llm_with_tools,
@@ -364,7 +375,7 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     global args  # Make args available to the server setup
     # Parse args again inside main to avoid shadowing issues (though we already parsed globally)
-    # But we need to use the parsed args for host, port, no_browser
+    # But we need to use the parsed args for host, port, no-browser
     # We'll reuse the global args set at module level
     print(f"Starting VLearn Pulse on http://{args.host}:{args.port}")
     print(f"Provider: {PROVIDER} | Model: {MODEL} | Has key: {HAS_KEY}")
