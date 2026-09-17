@@ -1,28 +1,12 @@
-"""Noise Resistance experiment (generalized).
+"""Thử nghiệm Noise Resistance: chạy tuned prompt trên input đã dedup.
 
-Chạy một prompt (v1.0 hoặc v1.1) trên input đã dedup cho các case có
-lượt hỏi lặp (edge_002, miss_002), so sánh ranking cluster trước/sau
-dedup của cùng prompt bằng Spearman rho.
+Cases có lượt hỏi lặp: edge_002 (3 lượt "Context window là gì?" giống hệt),
+miss_002 (2 câu giống hệt nhau). So sánh ranking cluster trước/sau dedup
+bằng Spearman rho trên thứ tự rank + unique_students + question_count.
 
-Cách dùng:
-    .venv/bin/python eval/metrics/dedup_noise.py \
-        --prompt-file codebase/src/prompting/system_prompt.md \
-        --prompt-version v1.0 \
-        --tag run_004_dedup_baseline \
-        --compare-tag run_001_baseline \
-        --out eval/results/dedup_experiment_v1_0.json
-
-Với tuned (v1.1), chạy lại lệnh trên với --prompt-file ...v1_1.md,
---prompt-version v1.1, --tag run_003_dedup_tuned, --compare-tag run_002_tuned,
---out eval/results/dedup_experiment_v1_1.json. giá trị trong file trùng
-với dedup_experiment.json cũ nếu dùng cùng các case.
-
-Config API được đọc từ biến môi trường:
-    OMNIROUTE_BASE_URL (bắt buộc)
-    OMNIROUTE_API_KEY  (bắt buộc)
-    OMNIROUTE_MODEL    (mặc định kiro/deepseek-3.2)
+Output: eval/results/cases/run_003_dedup_<case>.json
+        eval/results/dedup_experiment.json
 """
-import argparse
 import json
 import os
 import time
@@ -31,8 +15,15 @@ from pathlib import Path
 
 from openai import OpenAI
 
-ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_MODEL = "kiro/deepseek-3.2"
+ROOT = Path(__file__).resolve().parents[3]
+BASE_URL = os.environ.get("OMNIROUTE_BASE_URL")
+if not BASE_URL:
+    raise SystemExit("Thiếu OMNIROUTE_BASE_URL trong môi trường.")
+API_KEY = os.environ.get("OMNIROUTE_API_KEY")
+if not API_KEY:
+    raise SystemExit("Thiếu OMNIROUTE_API_KEY trong môi trường.")
+MODEL = os.environ.get("OMNIROUTE_MODEL", "kiro/deepseek-3.2")
+PROMPT_FILE = ROOT / "codebase/src/prompting/system_prompt_v1_1.md"
 
 
 def load_system_prompt(path):
@@ -82,6 +73,7 @@ def dedup_questions(payload):
 
 
 def spearman_rank(values):
+    """Rank tăng dần (xử lý bằng hạng trung bình). values: list số."""
     import math
     ranked = [0] * len(values)
     order = sorted(range(len(values)), key=lambda i: values[i])
@@ -111,80 +103,34 @@ def spearman(a, b):
     return cov / (sa * sb)
 
 
-def rank_vec(parsed):
-    clusters = (parsed or {}).get("clusters") or []
-    rows = sorted(
-        ((c.get("rank", i + 1), c.get("unique_students", 0),
-          c.get("question_count", 0), (c.get("concept") or ""))
-         for i, c in enumerate(clusters)),
-        key=lambda r: (r[0], -r[1], -r[2]))
-    return ([r[0] for r in rows], [r[1] for r in rows],
-            [r[2] for r in rows], [r[3] for r in rows])
-
-
-def summarize(orig_parsed, dedup_parsed):
-    rr, ru, rq, rc = rank_vec(orig_parsed)
-    dr, du, dq, dc = rank_vec(dedup_parsed)
-    return {
-        "orig_clusters": [
-            {"rank": a, "unique_students": b, "question_count": c,
-             "concept": d} for a, b, c, d in zip(rr, ru, rq, rc)],
-        "dedup_clusters": [
-            {"rank": a, "unique_students": b, "question_count": c,
-             "concept": d} for a, b, c, d in zip(dr, du, dq, dc)],
-        "rho_rank": round(spearman(rr, dr), 4),
-        "rho_unique_students": round(spearman(ru, du), 4),
-        "rho_question_count": round(spearman(rq, dq), 4),
-        "concepts_unchanged": rc == dc,
-    }
-
-
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--prompt-file", required=True)
-    parser.add_argument("--prompt-version", default="v1.1")
-    parser.add_argument("--tag", required=True,
-                        help="Tiền tố file kết quả dedup, ví dụ run_004_dedup_baseline")
-    parser.add_argument("--compare-tag", required=True,
-                        help="Tag bản gốc để so sánh, ví dụ run_001_baseline")
-    parser.add_argument("--out", required=True,
-                        help="File JSON tóm tắt experiment")
-    parser.add_argument("--cases", nargs="+", default=["edge_002", "miss_002"])
-    args = parser.parse_args()
-
-    system_prompt = load_system_prompt(ROOT / args.prompt_file)
-    base_url = os.environ.get("OMNIROUTE_BASE_URL")
-    if not base_url:
-        raise SystemExit("Thiếu OMNIROUTE_BASE_URL trong môi trường.")
-    api_key = os.environ.get("OMNIROUTE_API_KEY")
-    if not api_key:
-        raise SystemExit("Thiếu OMNIROUTE_API_KEY trong môi trường.")
-    model = os.environ.get("OMNIROUTE_MODEL", DEFAULT_MODEL)
-
-    client = OpenAI(api_key=api_key, base_url=base_url, timeout=330.0,
+    system_prompt = load_system_prompt(PROMPT_FILE)
+    client = OpenAI(api_key=API_KEY, base_url=BASE_URL, timeout=330.0,
                     max_retries=0)
+    cases = ["edge_002", "miss_002"]
     out_dir = ROOT / "eval/results/cases"
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    experiment = {"provider": "omniroute", "model": model,
-                  "prompt_version": args.prompt_version,
+    experiment = {"provider": "omniroute", "model": MODEL,
+                  "prompt_version": "v1.1",
                   "method": "Spearman rho giữa ranking cluster raw và dedup",
                   "cases": {}}
-    for cid in args.cases:
+    for cid in cases:
         payload = json.loads(
             (ROOT / f"eval/golden_set/{cid}.json").read_text(
                 encoding="utf-8-sig"))
         deduped = dedup_questions(payload)
         result = {
             "test_id": cid, "timestamp": datetime.now(timezone.utc).isoformat(),
-            "provider": "omniroute", "requested_model": model,
-            "prompt_version": f"{args.prompt_version}-dedup",
-            "prompt_file": str((ROOT / args.prompt_file).relative_to(ROOT)),
+            "provider": "omniroute", "requested_model": MODEL,
+            "prompt_version": "v1.1-dedup",
+            "prompt_file": str(PROMPT_FILE.relative_to(ROOT)),
             "input": deduped,
             "status": "NEEDS_REVIEW", "passed": None, "reason": "",
         }
         started = time.perf_counter()
         resp = client.chat.completions.create(
-            model=model,
+            model=MODEL,
             messages=[{"role": "system", "content": system_prompt},
                       {"role": "user",
                        "content": json.dumps(deduped, ensure_ascii=False)}],
@@ -203,18 +149,41 @@ def main():
             result["passed"] = False
             result["reason"] = f"JSON lỗi: {type(exc).__name__}"
             result["parsed_output"] = None
-        (out_dir / f"{args.tag}_{cid}.json").write_text(
+        (out_dir / f"run_003_dedup_{cid}.json").write_text(
             json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
 
-        orig = json.loads((out_dir / f"{args.compare_tag}_{cid}.json").read_text(
+        # Tính Spearman với bản tuned gốc
+        orig = json.loads((out_dir / f"run_002_tuned_{cid}.json").read_text(
             encoding="utf-8-sig"))
-        experiment["cases"][cid] = summarize(orig.get("parsed_output"),
-                                             result.get("parsed_output"))
+        def rank_vec(o):
+            clusters = (o.get("parsed_output") or {}).get("clusters") or []
+            rows = sorted(
+                ((c.get("rank", i + 1), c.get("unique_students", 0),
+                  c.get("question_count", 0), (c.get("concept") or ""))
+                 for i, c in enumerate(clusters)),
+                key=lambda r: (r[0], -r[1], -r[2]))
+            return [r[0] for r in rows], [r[1] for r in rows], \
+                   [r[2] for r in rows], [r[3] for r in rows]
+
+        rr, ru, rq, rc = rank_vec(orig)
+        dr, du, dq, dc = rank_vec(result)
+        experiment["cases"][cid] = {
+            "orig_clusters": [
+                {"rank": a, "unique_students": b, "question_count": c,
+                 "concept": d} for a, b, c, d in zip(rr, ru, rq, rc)],
+            "dedup_clusters": [
+                {"rank": a, "unique_students": b, "question_count": c,
+                 "concept": d} for a, b, c, d in zip(dr, du, dq, dc)],
+            "rho_rank": round(spearman(rr, dr), 4),
+            "rho_unique_students": round(spearman(ru, du), 4),
+            "rho_question_count": round(spearman(rq, dq), 4),
+            "concepts_unchanged": rc == dc,
+        }
         print(cid, "->", experiment["cases"][cid])
 
     rho_list = [v["rho_rank"] for v in experiment["cases"].values()]
     experiment["avg_rho_rank"] = round(sum(rho_list) / len(rho_list), 4)
-    out = ROOT / args.out
+    out = ROOT / "eval/results/dedup_experiment.json"
     out.write_text(json.dumps(experiment, ensure_ascii=False, indent=2),
                    encoding="utf-8")
     print("DA LUU:", out, "| avg rho_rank =", experiment["avg_rho_rank"])

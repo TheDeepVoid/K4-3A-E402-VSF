@@ -7,23 +7,27 @@ Bộ test cases được chuẩn bị thủ công để đánh giá chất lư�
 
 ### Cấu trúc
 ```
-eval/
-├── README.md                    ← file này  
+eval/                              ← dữ liệu + báo cáo (code ở codebase/src/evaluation/)
+├── README.md                      ← file này
 ├── golden_set/
-│   ├── sample_questions.csv     ← 50 câu hỏi đã được label thủ công
-│   ├── expected_clusters.json   ← kết quả clustering mong đợi
-│   └── ground_truth_mapping.csv ← liên kết đúng với slide/transcript
+│   ├── sample_questions.csv       ← 50 câu hỏi đã được label thủ công
+│   ├── expected_clusters.json     ← kết quả clustering mong đợi
+│   └── ground_truth_mapping.csv   ← liên kết đúng với slide/transcript
 ├── results/
-│   ├── run_001_baseline.json    ← kết quả chạy lần 1
-│   ├── run_002_tuned.json       ← kết quả sau khi tune
-│   ├── comparison.csv           ← bảng so sánh các lần chạy
-│   ├── cases/                   ← output per-case (JSON từ API)
-│   ├── dedup_experiment*.json   ← thí nghiệm Noise Resistance
+│   ├── run_001_baseline.json      ← kết quả chạy lần 1
+│   ├── run_002_tuned.json         ← kết quả sau khi tune
+│   ├── comparison.csv             ← bảng so sánh các lần chạy
+│   ├── cases/                     ← output per-case (JSON từ API)
+│   └── dedup_experiment*.json     ← thí nghiệm Noise Resistance
 └── metrics/
-    ├── evaluation_report.md     ← báo cáo chi tiết
-    ├── build_golden_set.py      ← sinh golden_set
-    ├── run_omniroute.py         ← chạy case qua API
-    └── score_runs.py            ← tính metrics + comparison
+    └── evaluation_report.md       ← báo cáo chi tiết
+
+codebase/src/evaluation/           ← script evaluation (CLI)
+├── build_golden_set.py            ← sinh golden_set
+├── run_omniroute.py               ← chạy case qua API
+├── score_runs.py                  ← tính metrics + comparison
+├── dedup_noise.py                 ← thí nghiệm Noise Resistance (tổng quát)
+└── dedup_experiment.py            ← thí nghiệm Noise Resistance cho v1.1
 ```
 
 ## Metrics
@@ -49,8 +53,8 @@ eval/
 ## Cách thêm evaluation mới
 
 1. Chuẩn bị test case trong `golden_set/`
-2. Chạy runner: `.venv/bin/python eval/metrics/run_omniroute.py --prompt-file ... --tag run_XXX --model ... --base-url ... --api-key ...`
-3. Chạy scorer: `.venv/bin/python eval/metrics/score_runs.py` (tính metrics, ghi `results/run_XXX.json` và `comparison.csv`)
+2. Chạy runner: `.venv/bin/python codebase/src/evaluation/run_omniroute.py --prompt-file ... --tag run_XXX --model ... --base-url ... --api-key ...`
+3. Chạy scorer: `.venv/bin/python codebase/src/evaluation/score_runs.py` (tính metrics, ghi `results/run_XXX.json` và `comparison.csv`)
 4. Cập nhật bảng comparison và `metrics/evaluation_report.md`
 
 *Evaluation framework - VLearn Pulse*

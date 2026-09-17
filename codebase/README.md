@@ -31,6 +31,13 @@ codebase/
 │   │   ├── gemini_provider.py # Google Gemini provider
 │   │   ├── openrouter_provider.py # OpenRouter provider
 │   │   └── omniroute_provider.py # OmniRoute with fallback
+│   ├── evaluation/    ← bộ công cụ eval (golden set, runner, scorer, noise)
+│   │   ├── __init__.py
+│   │   ├── build_golden_set.py  # sinh eval/golden_set
+│   │   ├── run_omniroute.py     # chạy case qua API
+│   │   ├── score_runs.py        # chấm điểm + tính 4 metrics
+│   │   ├── dedup_noise.py       # thí nghiệm Noise Resistance
+│   │   └── dedup_experiment.py  # thí nghiệm Noise Resistance cho v1.1
 │   ├── env.py         # Loads API keys from .env
 │   ├── demo.py        # Live demo script
 │   └── eval.py        # Evaluation runner
@@ -64,6 +71,20 @@ python src/demo.py --provider openai --model gpt-5-nano
 ### Run Evaluation
 ```bash
 python src/eval.py --provider openai --model gpt-5-nano
+```
+
+### Pipeline evaluation mới (OmniRoute)
+```bash
+# 1. Sinh golden set từ 19 case JSON
+python src/evaluation/build_golden_set.py
+
+# 2. Chạy 19 case qua OmniRoute
+OMNIROUTE_BASE_URL=... OMNIROUTE_API_KEY=... python src/evaluation/run_omniroute.py \
+    --prompt-file codebase/src/prompting/system_prompt.md --tag run_001_baseline \
+    --model kiro/deepseek-3.2 --base-url $OMNIROUTE_BASE_URL --api-key $OMNIROUTE_API_KEY
+
+# 3. Tính 4 metrics + comparison
+python src/evaluation/score_runs.py
 ```
 
 ## Roles

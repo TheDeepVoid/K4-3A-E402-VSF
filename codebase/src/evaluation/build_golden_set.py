@@ -12,7 +12,7 @@ import csv
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 GOLDEN = ROOT / "eval/golden_set"
 
 # --- Bảng expected theo case -------------------------------------------------

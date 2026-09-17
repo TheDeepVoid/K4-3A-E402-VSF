@@ -15,14 +15,14 @@ Ghi chú: Báo cáo tường thuật eval/metrics/evaluation_report.md được 
 từ các aggregate này (không sinh tự động).
 
 Cách chạy:
-    .venv/bin/python eval/metrics/score_runs.py
+    .venv/bin/python codebase/src/evaluation/score_runs.py
 """
 import json
 import re
 from pathlib import Path
 from statistics import mean
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 CASES = ROOT / "eval/results/cases"
 RESULTS = ROOT / "eval/results"
 GOLDEN = ROOT / "eval/golden_set"

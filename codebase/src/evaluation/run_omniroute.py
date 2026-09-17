@@ -1,7 +1,7 @@
 """Chạy evaluation qua OmniRoute (local router, OpenAI-compatible).
 
 Cách dùng:
-    .venv/bin/python eval/metrics/run_omniroute.py \
+    .venv/bin/python codebase/src/evaluation/run_omniroute.py \
         --prompt-file codebase/src/prompting/system_prompt.md \
         --prompt-version v1.0 \
         --tag run_001_baseline \
@@ -21,7 +21,7 @@ from pathlib import Path
 
 from openai import OpenAI
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 
 
 def load_system_prompt(prompt_path) -> str:
