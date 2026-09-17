@@ -3,7 +3,7 @@ from .base import BaseAIProvider, AIResponse, EmbeddingResponse, ProviderConfig
 from .openai_provider import OpenAIProvider
 from .gemini_provider import GeminiProvider
 from .openrouter_provider import OpenRouterProvider
-from .omnirouter_provider import OmniRouterProvider
+from .omniroute_provider import OmniRouteProvider
 
 __all__ = [
     "BaseAIProvider",
@@ -13,5 +13,5 @@ __all__ = [
     "OpenAIProvider",
     "GeminiProvider",
     "OpenRouterProvider",
-    "OmniRouterProvider",
+    "OmniRouteProvider",
 ]

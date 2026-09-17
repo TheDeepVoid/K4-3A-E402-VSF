@@ -8,7 +8,7 @@ from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, asdict
 
 from tests.test_cases import TEST_CASES, TestCase, TestCategory
-from providers import OpenAIProvider, GeminiProvider, OpenRouterProvider, OmniRouterProvider
+from providers import OpenAIProvider, GeminiProvider, OpenRouterProvider, OmniRouteProvider
 from providers.base import ProviderConfig, AIResponse
 from config.system_prompt import SYSTEM_PROMPT
 
@@ -208,8 +208,8 @@ async def run_evaluation(
         provider = GeminiProvider(config)
     elif provider_type == "openrouter":
         provider = OpenRouterProvider(config)
-    elif provider_type == "omnirouter":
-        provider = OmniRouterProvider(config)
+    elif provider_type == "omniroute":
+        provider = OmniRouteProvider(config)
     else:
         raise ValueError(f"Unknown provider: {provider_type}")
     
@@ -257,7 +257,7 @@ if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser(description="Evaluate AI Pipeline")
-    parser.add_argument("--provider", default="openai", choices=["openai", "gemini", "openrouter", "omnirouter"])
+    parser.add_argument("--provider", default="openai", choices=["openai", "gemini", "openrouter", "omniroute"])
     parser.add_argument("--model", default="gpt-3.5-turbo")
     parser.add_argument("--api-key", default=None)
     parser.add_argument("--base-url", default=None)

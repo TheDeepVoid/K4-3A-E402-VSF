@@ -10,7 +10,7 @@ codebase/
 │   ├── openai_provider.py # OpenAI provider
 │   ├── gemini_provider.py # Google Gemini provider
 │   ├── openrouter_provider.py # OpenRouter provider
-│   └── omnirouter_provider.py # OmniRouter with fallback
+│   └── omniroute_provider.py # OmniRoute with fallback
 ├── config/
 │   ├── __init__.py
 │   └── system_prompt.py   # Prompt engineering (Person 2)

@@ -1,20 +1,19 @@
-"""OmniRouter Provider Implementation"""
+"""OmniRoute Provider Implementation"""
 import time
 from typing import Dict, List, Any, Optional
 from openai import AsyncOpenAI
-import httpx
 
 from .base import BaseAIProvider, AIResponse, EmbeddingResponse, ProviderConfig
 
 
-class OmniRouterProvider(BaseAIProvider):
-    """OmniRouter AI provider - multi-provider aggregation with fallback"""
+class OmniRouteProvider(BaseAIProvider):
+    """OmniRoute AI provider - multi-provider aggregation with fallback"""
 
     def __init__(self, config: ProviderConfig):
         super().__init__(config)
         self._client = AsyncOpenAI(
             api_key=config.api_key,
-            base_url=config.base_url or "https://api.omnirouter.ai/v1",
+            base_url=config.base_url or "https://api.omniroute.ai/v1",
             timeout=config.timeout
         )
         self._fallback_providers: List[BaseAIProvider] = []
@@ -63,7 +62,7 @@ class OmniRouterProvider(BaseAIProvider):
             return AIResponse(
                 content=response.choices[0].message.content or "",
                 model=response.model,
-                provider="omnirouter",
+                provider="omniroute",
                 tokens_used=response.usage.total_tokens if response.usage else None,
                 latency_ms=latency_ms
             )
@@ -71,7 +70,7 @@ class OmniRouterProvider(BaseAIProvider):
             return AIResponse(
                 content="",
                 model=self.config.model,
-                provider="omnirouter",
+                provider="omniroute",
                 error=str(e)
             )
 
@@ -94,14 +93,14 @@ class OmniRouterProvider(BaseAIProvider):
             return EmbeddingResponse(
                 embeddings=embeddings,
                 model=model,
-                provider="omnirouter",
+                provider="omniroute",
                 tokens_used=response.usage.total_tokens if response.usage else None
             )
         except Exception as e:
             return EmbeddingResponse(
                 embeddings=[],
                 model=self.config.model,
-                provider="omnirouter",
+                provider="omniroute",
                 error=str(e)
             )
 
