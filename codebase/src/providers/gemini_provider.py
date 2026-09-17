@@ -1,7 +1,9 @@
 """Google Gemini Provider Implementation"""
 import time
+import asyncio
 from typing import Dict, List, Any
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from .base import BaseAIProvider, AIResponse, EmbeddingResponse, ProviderConfig
 
@@ -11,11 +13,11 @@ class GeminiProvider(BaseAIProvider):
 
     def __init__(self, config: ProviderConfig):
         super().__init__(config)
-        genai.configure(api_key=config.api_key)
-        self._generation_config = {
-            "temperature": config.temperature,
-            "max_output_tokens": config.max_tokens,
-        }
+        self._client = genai.Client(api_key=config.api_key)
+        self._generation_config = types.GenerationConfig(
+            temperature=config.temperature,
+            max_output_tokens=config.max_tokens,
+        )
 
     async def chat_completion(
         self,
@@ -24,23 +26,27 @@ class GeminiProvider(BaseAIProvider):
     ) -> AIResponse:
         """Generate chat completion using Gemini"""
         start_time = time.time()
-        
+
         try:
             # Convert messages to Gemini format
             contents = self._convert_messages(messages)
-            
-            model = genai.GenerativeModel(
-                model_name=kwargs.get("model", self.config.model),
-                generation_config=self._generation_config
-            )
-            
-            response = await model.generate_content_async(contents)
-            
+
+            model_name = kwargs.get("model", self.config.model)
+
+            def _generate():
+                return self._client.models.generate_content(
+                    model=model_name,
+                    contents=contents,
+                    generation_config=self._generation_config,
+                )
+
+            response = await asyncio.to_thread(_generate)
+
             latency_ms = (time.time() - start_time) * 1000
-            
+
             return AIResponse(
                 content=response.text or "",
-                model=model.model_name,
+                model=model_name,
                 provider="gemini",
                 latency_ms=latency_ms
             )
@@ -57,23 +63,28 @@ class GeminiProvider(BaseAIProvider):
         texts: List[str],
         **kwargs
     ) -> EmbeddingResponse:
-        """Get embeddings using Gemini's embedding models"""
+        """Get embeddings for texts"""
+        start_time = time.time()
+
         try:
-            model = kwargs.get("model", "gemini-embedding-001")
-            
-            # Gemini embeddings are done one at a time
-            embeddings = []
-            for text in texts:
-                result = genai.embed_content(
-                    model=model,
-                    content=text
+            model_name = kwargs.get("model", self.config.model)
+            # Use the embedding model
+            def _embed():
+                return self._client.models.embed_content(
+                    model=model_name,
+                    contents=texts,
+                    config=types.EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT")
                 )
-                embeddings.append(result["embedding"])
-            
+
+            response = await asyncio.to_thread(_embed)
+
+            latency_ms = (time.time() - start_time) * 1000
+
             return EmbeddingResponse(
-                embeddings=embeddings,
-                model=model,
-                provider="gemini"
+                embeddings=[emb.values for emb in response.embeddings],
+                model=model_name,
+                provider="gemini",
+                latency_ms=latency_ms
             )
         except Exception as e:
             return EmbeddingResponse(
@@ -83,16 +94,17 @@ class GeminiProvider(BaseAIProvider):
                 error=str(e)
             )
 
-    def _convert_messages(self, messages: List[Dict[str, str]]) -> str:
-        """Convert OpenAI-style messages to Gemini format"""
-        # Gemini uses a simpler format - just concatenate messages
-        content = []
+    def _convert_messages(self, messages: List[Dict[str, str]]) -> List[types.Content]:
+        """Convert OpenAI-style messages to Gemini contents"""
+        contents = []
         for msg in messages:
-            role = msg.get("role", "user")
-            text = msg.get("content", "")
-            content.append(f"{role}: {text}")
-        return "\n".join(content)
-
-    async def close(self):
-        """Close resources (no-op for Gemini)"""
-        pass
+            role = msg["role"]
+            content = msg["content"]
+            # Gemini uses 'user' and 'model' roles; map 'assistant' to 'model'
+            if role == "assistant":
+                role = "model"
+            elif role not in ["user", "model"]:
+                # Default to user for system or unknown roles
+                role = "user"
+            contents.append(types.Content(role=role, parts=[types.Part(text=content)]))
+        return contents
