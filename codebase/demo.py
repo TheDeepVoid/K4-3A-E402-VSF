@@ -8,20 +8,20 @@ from pathlib import Path
 # Add codebase to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from providers import OpenAIProvider, GeminiProvider, OpenRouterProvider
+from providers import OpenAIProvider, GeminiProvider, OpenRouterProvider, OmniRouteProvider
 from providers.base import ProviderConfig
 from config.system_prompt import SYSTEM_PROMPT
+from config.env import get_api_key
 
 
-async def run_demo(provider_name: str = "openai", model: str = "gpt-3.5-turbo"):
+async def run_demo(provider_name: str = "openai", model: str = "gpt-5-nano"):
     """Run a simple demo showing the AI pipeline"""
     
     print(f"\n{'='*60}")
     print(f"AI PIPELINE DEMO - {provider_name}/{model}")
     print(f"{'='*60}\n")
     
-    # Get API key
-    api_key = os.getenv("OPENAI_API_KEY", "demo-key")
+    api_key = get_api_key(provider_name) or os.getenv("OPENAI_API_KEY", "demo-key")
     
     config = ProviderConfig(
         api_key=api_key,
@@ -37,6 +37,8 @@ async def run_demo(provider_name: str = "openai", model: str = "gpt-3.5-turbo"):
         provider = GeminiProvider(config)
     elif provider_name == "openrouter":
         provider = OpenRouterProvider(config)
+    elif provider_name == "omniroute":
+        provider = OmniRouteProvider(config)
     else:
         raise ValueError(f"Unknown provider: {provider_name}")
     
@@ -85,9 +87,9 @@ if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser(description="AI Pipeline Demo")
-    parser.add_argument("--provider", default="openai", 
-                       choices=["openai", "gemini", "openrouter"])
-    parser.add_argument("--model", default="gpt-3.5-turbo")
+    parser.add_argument("--provider", default="openai",
+                       choices=["openai", "gemini", "openrouter", "omniroute"])
+    parser.add_argument("--model", default="gpt-5-nano")
     
     args = parser.parse_args()
     

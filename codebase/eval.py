@@ -185,7 +185,7 @@ def print_summary(summary: EvaluationSummary):
 
 async def run_evaluation(
     provider_type: str = "openai",
-    model: str = "gpt-3.5-turbo",
+    model: str = "gpt-5-nano",
     api_key: str = None,
     base_url: str = None
 ) -> EvaluationSummary:
@@ -258,7 +258,7 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description="Evaluate AI Pipeline")
     parser.add_argument("--provider", default="openai", choices=["openai", "gemini", "openrouter", "omniroute"])
-    parser.add_argument("--model", default="gpt-3.5-turbo")
+    parser.add_argument("--model", default="gpt-5-nano")
     parser.add_argument("--api-key", default=None)
     parser.add_argument("--base-url", default=None)
     parser.add_argument("--output", default="eval_results.json")

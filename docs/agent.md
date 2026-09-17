@@ -4,7 +4,7 @@
 
 This section logs the work completed by previous agents.
 
-### Agent 1 (Initial Setup - Current)
+### Agent 1 (Initial Setup)
 
 **Date**: September 2026
 
@@ -39,11 +39,42 @@ This section logs the work completed by previous agents.
    - All changes committed to `TheDeepVoid` branch
    - Note: GitHub push failed due to authentication
 
+### Agent 2 (Cheapest live models)
+
+**Date**: September 2026
+
+**Completed Tasks**:
+
+- Looked up official pricing / deprecation pages (OpenAI, Gemini, OpenRouter, OmniRoute).
+- Switched demo/eval defaults to the cheapest **still-served** chat models.
+- Documented IDs that are retired or should not be used.
+
+---
+
+## Cheapest still-served models (as of Sep 2026)
+
+Use these IDs. Do **not** use deprecated aliases (`gpt-3.5-turbo`, `gemini-pro`, `gemini-1.5-flash`).
+
+| Provider | Model ID | Why this one | Approx. price |
+| --- | --- | --- | --- |
+| **OpenAI** | `gpt-5-nano` | Cheapest currently listed chat model on OpenAI pricing | $0.05 / $0.40 per 1M tokens |
+| **Gemini** | `gemini-2.5-flash-lite` | Cheapest current Gemini text model; 1.5 / 2.0 / `gemini-pro` are deprecated | $0.10 / $0.40 per 1M tokens |
+| **OpenRouter** | `google/gemma-4-31b-it:free` | $0 on OpenRouter (rate-limited). Paid fallback: `mistralai/mistral-nemo` | Free / ~$0.02–$0.03 per 1M |
+| **OmniRoute** | `gpt-5-nano` | OmniRoute is an OpenAI-compatible router; start with the cheapest OpenAI-class ID so it can pick the cheapest route | Routed; list price follows the upstream model |
+
+**Do not use (retired / being shut down):**
+
+- OpenAI: `gpt-3.5-turbo`, `gpt-3.5-turbo-16k`, old `gpt-4` snapshots — migrate to `gpt-5-nano` (cheap) or `gpt-4.1-mini` (quality).
+- Gemini: `gemini-pro`, `gemini-1.5-flash`, `gemini-1.5-pro`, `gemini-2.0-flash` — migrate to `gemini-2.5-flash-lite`.
+- OpenRouter: bare `gpt-3.5-turbo` without a vendor prefix — use `google/gemma-4-31b-it:free` or `openai/gpt-5-nano`.
+
+Sources checked: [OpenAI pricing](https://developers.openai.com/api/docs/pricing), [OpenAI deprecations](https://developers.openai.com/api/docs/deprecations), [Gemini deprecations](https://ai.google.dev/gemini-api/docs/deprecations), [OpenRouter `/api/v1/models`](https://openrouter.ai/api/v1/models), [OmniRoute](https://www.omniroute.online/).
+
 ---
 
 ## Instructions for Next Agent
 
-To continue this work, follow these steps:
+To continue this work, follow these steps.
 
 ### 1. Setup Environment
 
@@ -58,14 +89,26 @@ cp .env.example .env
 pip install -r codebase/requirements.txt
 ```
 
-### 2. Run the Pipeline
+### 2. Run the Pipeline (cheapest live models)
 
 ```bash
-# Run demo
-python codebase/demo.py --provider openai --model gpt-3.5-turbo
+# Demo — cheapest still-served model per provider
+python codebase/demo.py --provider openai --model gpt-5-nano
+python codebase/demo.py --provider gemini --model gemini-2.5-flash-lite
+python codebase/demo.py --provider openrouter --model google/gemma-4-31b-it:free
+python codebase/demo.py --provider omniroute --model gpt-5-nano
 
-# Run evaluation
-python codebase/eval.py --provider openai --model gpt-3.5-turbo
+# Evaluation — same cheapest IDs
+python codebase/eval.py --provider openai --model gpt-5-nano
+python codebase/eval.py --provider gemini --model gemini-2.5-flash-lite
+python codebase/eval.py --provider openrouter --model google/gemma-4-31b-it:free
+python codebase/eval.py --provider omniroute --model gpt-5-nano
+```
+
+If an OpenRouter `:free` model is rate-limited, fall back to:
+
+```bash
+python codebase/eval.py --provider openrouter --model mistralai/mistral-nemo
 ```
 
 ### 3. Add New Providers
@@ -128,7 +171,9 @@ K4-3A-E402-VSF/
 ## Notes
 
 - Providers load API keys from `.env` file using `config/env.py`
-- Test cases are defined in `docs/test_cases_template.md` (Markdown)
-- System prompts are defined in `docs/system_prompt_template.md` (Markdown)
+- Test cases are defined in `codebase/docs/test_cases_template.md` (Markdown)
+- System prompts are defined in `codebase/docs/system_prompt_template.md` (Markdown)
+- Default chat model is `gpt-5-nano` (cheapest still-served OpenAI ID)
 - All changes should be committed to `TheDeepVoid` branch
 - Push to GitHub manually if auth fails
+- Re-check provider pricing pages before a live demo; cheapest IDs change

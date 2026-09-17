@@ -28,7 +28,7 @@ class ProviderConfig(BaseModel):
     """Configuration for AI providers"""
     api_key: str
     base_url: Optional[str] = None
-    model: str = "gpt-3.5-turbo"
+    model: str = "gpt-5-nano"
     temperature: float = 0.7
     max_tokens: Optional[int] = 1000
     timeout: int = 30

@@ -39,12 +39,12 @@ export OPENROUTER_API_KEY="your-key"
 
 ### Run Demo
 ```bash
-python demo.py --provider openai --model gpt-3.5-turbo
+python demo.py --provider openai --model gpt-5-nano
 ```
 
 ### Run Evaluation
 ```bash
-python eval.py --provider openai --model gpt-3.5-turbo
+python eval.py --provider openai --model gpt-5-nano
 ```
 
 ## Roles

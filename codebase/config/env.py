@@ -20,15 +20,16 @@ def get_api_key(provider: str = "openai") -> str:
         "openai": "OPENAI_API_KEY",
         "gemini": "GEMINI_API_KEY",
         "openrouter": "OPENROUTER_API_KEY",
+        "omniroute": "OMNIROUTE_API_KEY",
         "anthropic": "ANTHROPIC_API_KEY",
     }
     env_var = key_map.get(provider.lower(), f"{provider.upper()}_API_KEY")
     return os.getenv(env_var, "")
 
-# Provider configuration
+# Provider configuration — cheapest still-served OpenAI chat model
 PROVIDER_CONFIG = {
     "default": os.getenv("DEFAULT_PROVIDER", "openai"),
-    "default_model": os.getenv("DEFAULT_MODEL", "gpt-3.5-turbo"),
+    "default_model": os.getenv("DEFAULT_MODEL", "gpt-5-nano"),
     "fallback": os.getenv("FALLBACK_PROVIDER", "openrouter"),
 }
 

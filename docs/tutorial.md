@@ -4,10 +4,21 @@
 
 Đây là hướng dẫn cách chạy và sử dụng dự án AI Pipeline cho VLearn Pulse.
 
+Luôn chạy **model rẻ nhất còn đang phục vụ**. Không dùng ID đã ngừng (`gpt-3.5-turbo`, `gemini-pro`, `gemini-1.5-flash`).
+
 ## Yêu cầu
 
 - Python 3.9+
 - API key từ các provider (OpenAI, Gemini, OpenRouter, OmniRoute)
+
+## Model rẻ nhất còn phục vụ (tháng 9/2026)
+
+| Provider | Model ID | Ghi chú |
+| --- | --- | --- |
+| OpenAI | `gpt-5-nano` | Rẻ nhất trên bảng giá OpenAI (~$0.05 / $0.40 mỗi 1M token) |
+| Gemini | `gemini-2.5-flash-lite` | Rẻ nhất hiện tại; `gemini-pro` / `gemini-1.5-*` đã deprecated |
+| OpenRouter | `google/gemma-4-31b-it:free` | Miễn phí (có rate-limit). Fallback trả phí: `mistralai/mistral-nemo` |
+| OmniRoute | `gpt-5-nano` | Router tương thích OpenAI; gửi ID rẻ để chọn route rẻ nhất |
 
 ---
 
@@ -32,53 +43,71 @@ pip install -r codebase/requirements.txt
 cp .env.example .env
 
 # Chỉnh sửa file .env và thêm API key của bạn
-nano .env
 ```
 
 Nội dung file `.env`:
+
 ```env
 OPENAI_API_KEY=your-openai-key
 GEMINI_API_KEY=your-gemini-key
 OPENROUTER_API_KEY=your-openrouter-key
+OMNIROUTE_API_KEY=your-omniroute-key
 DEFAULT_PROVIDER=openai
-DEFAULT_MODEL=gpt-3.5-turbo
+DEFAULT_MODEL=gpt-5-nano
+FALLBACK_PROVIDER=openrouter
 ```
 
 ---
 
 ## Bước 2: Chạy Demo
 
-Chạy script demo để kiểm tra pipeline:
+Chạy script demo với model rẻ nhất còn phục vụ:
 
 ```bash
-# Sử dụng OpenAI
-python codebase/demo.py --provider openai --model gpt-3.5-turbo
+# OpenAI — rẻ nhất
+python codebase/demo.py --provider openai --model gpt-5-nano
 
-# Sử dụng Gemini
-python codebase/demo.py --provider gemini --model gemini-pro
+# Gemini — rẻ nhất
+python codebase/demo.py --provider gemini --model gemini-2.5-flash-lite
 
-# Sử dụng OpenRouter
-python codebase/demo.py --provider openrouter --model gpt-3.5-turbo
+# OpenRouter — miễn phí
+python codebase/demo.py --provider openrouter --model google/gemma-4-31b-it:free
+
+# OmniRoute — route rẻ nhất
+python codebase/demo.py --provider omniroute --model gpt-5-nano
+```
+
+Nếu OpenRouter `:free` bị rate-limit:
+
+```bash
+python codebase/demo.py --provider openrouter --model mistralai/mistral-nemo
 ```
 
 ---
 
 ## Bước 3: Chạy Evaluation
 
-Chạy bộ test để đánh giá AI:
+Chạy bộ test với cùng các model rẻ nhất:
 
 ```bash
-# Với OpenAI
-python codebase/eval.py --provider openai --model gpt-3.5-turbo
+# OpenAI
+python codebase/eval.py --provider openai --model gpt-5-nano
 
-# Với Gemini
-python codebase/eval.py --provider gemini --model gemini-pro
+# Gemini
+python codebase/eval.py --provider gemini --model gemini-2.5-flash-lite
+
+# OpenRouter
+python codebase/eval.py --provider openrouter --model google/gemma-4-31b-it:free
+
+# OmniRoute
+python codebase/eval.py --provider omniroute --model gpt-5-nano
 
 # Lưu kết quả ra file
-python codebase/eval.py --provider openai --output results.json
+python codebase/eval.py --provider openai --model gpt-5-nano --output results.json
 ```
 
 Kết quả sẽ hiển thị:
+
 - Tổng số test
 - Số test passed/failed
 - Tỷ lệ pass
@@ -124,17 +153,17 @@ class MyProvider(BaseAIProvider):
     def __init__(self, config: ProviderConfig):
         super().__init__(config)
         # Khởi tạo client
-    
+
     async def chat_completion(self, messages, **kwargs):
         # Triển khai chat completion
         pass
-    
+
     async def get_embeddings(self, texts, **kwargs):
         # Triển khai embeddings
         pass
 ```
 
-### Bước 2: Thêm vào __init__.py
+### Bước 2: Thêm vào `__init__.py`
 
 ```python
 from .myprovider_provider import MyProvider
@@ -164,17 +193,7 @@ Eval script sẽ tự động load từ file này.
 
 ## Cách Sửa System Prompt
 
-Chỉnh sửa file `codebase/docs/system_prompt_template.md`:
-
-```markdown
-## Prompt Mặc định
-
-```
-Bạn là AI assistant...
-```
-```
-
-Config sẽ tự động load prompt từ file này.
+Chỉnh sửa file `codebase/docs/system_prompt_template.md`. Config sẽ tự động load prompt từ file này.
 
 ---
 
@@ -183,6 +202,14 @@ Config sẽ tự động load prompt từ file này.
 ### Lỗi authentication
 
 Kiểm tra API key trong file `.env` đã đúng chưa.
+
+### Model not found / model deprecated
+
+Đừng dùng `gpt-3.5-turbo`, `gemini-pro`, `gemini-1.5-flash`. Dùng đúng ID trong bảng phía trên.
+
+### OpenRouter `:free` bị 429
+
+Đổi sang `mistralai/mistral-nemo` (rẻ, trả phí).
 
 ### Module not found
 
