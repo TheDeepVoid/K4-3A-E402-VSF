@@ -2,7 +2,7 @@
 from pathlib import Path
 
 # Load from MD file
-SYSTEM_PROMPT_PATH = Path(__file__).parent.parent / "docs" / "system_prompt.md"
+SYSTEM_PROMPT_PATH = Path(__file__).parent / "system_prompt.md"
 
 def load_system_prompt() -> str:
     """Load the default system prompt from MD file"""

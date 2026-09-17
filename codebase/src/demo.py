@@ -10,8 +10,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from providers import OpenAIProvider, GeminiProvider, OpenRouterProvider, OmniRouteProvider
 from providers.base import ProviderConfig
-from config.system_prompt import SYSTEM_PROMPT
-from config.env import get_api_key
+from prompting.prompts import SYSTEM_PROMPT
+from env import get_api_key
 
 
 async def run_demo(provider_name: str = "openai", model: str = "gpt-5-nano"):

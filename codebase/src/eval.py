@@ -1,16 +1,21 @@
 """Evaluation Script for AI Pipeline - Person 3 will use this"""
 import asyncio
 import json
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass, asdict
 
+# Add codebase/src and codebase to path
+sys.path.insert(0, str(Path(__file__).parent))          # codebase/src
+sys.path.insert(0, str(Path(__file__).parent.parent))   # codebase
+
 from tests.test_cases import TEST_CASES, TestCase, TestCategory
 from providers import OpenAIProvider, GeminiProvider, OpenRouterProvider, OmniRouteProvider
 from providers.base import ProviderConfig, AIResponse
-from config.system_prompt import SYSTEM_PROMPT
+from prompting.prompts import SYSTEM_PROMPT
 
 
 @dataclass

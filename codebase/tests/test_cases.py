@@ -5,7 +5,7 @@ from enum import Enum
 from pathlib import Path
 import re
 
-TEST_CASES_PATH = Path(__file__).parent.parent / "docs" / "test_cases.md"
+TEST_CASES_PATH = Path(__file__).parent / "fixtures" / "test_cases_template.md"
 
 
 class TestCategory(Enum):
