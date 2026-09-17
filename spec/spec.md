@@ -90,11 +90,11 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 
 ## §8. Phân công & kế hoạch
 - Phân công có tên: spec / evidence / prompt / code / demo
-  - Spec: [Tên thành viên 1]
-  - Evidence: [Tên thành viên 2] (thu thập và ghi chú golden set)
-  - Prompt: [Tên thành viên 3] (thiết kế và cải thiện system prompt)
-  - Code: [Tên thành viên 4] (chạy `run_cases.py`, duy trì CLI)
-  - Demo: [Tên thành viên 5] (xây dựng mockup và chuẩn bị validation)
+  - Spec: [Nguyễn Hải Đăng, Nguyễn Thị Mừng]
+  - Evidence: [Ngô Gia Quốc, Bùi Thị Ngọc Trân] (thu thập và ghi chú golden set)
+  - Prompt: [Ngô Gia Quốc, Bùi Thị Ngọc Trân] (thiết kế và cải thiện system prompt)
+  - Code: [Nguyễn Hải Đăng, Ngô Gia Quốc] (chạy `run_cases.py`, duy trì CLI)
+  - Demo: [Nguyễn Thị Mừng] (xây dựng mockup và chuẩn bị validation)
 - Willing users (≥2 tên) + kế hoạch vòng validation *(bonus, nếu làm)*:
   - Willing users: GS. Nguyễn Văn A (giảng viên Khoa CNTT), ThS. Trần Thị B (TA lớp K4)
   - Kế hoạch vòng validation: Tuần sau spec freeze, triển khai phiên bản beta với 2 lớp học, thu thập phản hồi qua biểu mẫu và phỏng vấn, tiếp tục cải thiện prompt.
@@ -107,4 +107,3 @@ Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 | 10/9/2026 | Tạo spec phiên bản v1.0 | Khởi tạo dự đoán ban đầu dựa trên buổi sáng |
 | 12/9/2026 | Cập nhật spec v1.1 sau eval đầu tiên | Thêm kết quả eval: 12/19 ĐẬU, điều chỉnh chỉ số |
 | 17/9/2026 | Cập nhật spec v1.2 sau eval gần nhất | Cập nhật KPI dựa trên 15/19 ĐẬU, thêm chi tiết về preprocessing |
-| [Ngày hôm nay] | Chuyển đổi sang định dạng template 03-ai-spec-template.md | Đảm bảo tuân thủ yêu cầu của mẫu spec |
