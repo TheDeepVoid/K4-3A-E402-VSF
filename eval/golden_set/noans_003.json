@@ -1,0 +1,24 @@
+{
+  "task": "analyze_clusters",
+  "scope": {
+    "cohort": "K4",
+    "lecture": "D01",
+    "time_range": "2026-09-09 đến 2026-09-15"
+  },
+  "questions": [
+    {
+      "student": "S0300",
+      "is_preset": false,
+      "student_question": "Token là gì?"
+    }
+  ],
+  "materials": [
+    {
+      "source_id": "[T04-049]",
+      "source_type": "transcript",
+      "content": "Token là đơn vị văn bản mà mô hình xử lý."
+    }
+  ],
+  "selected_cluster": null,
+  "teacher_confirmed_source": false
+}

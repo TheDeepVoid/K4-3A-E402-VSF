@@ -1,0 +1,39 @@
+{
+  "task": "analyze_clusters",
+  "scope": {
+    "cohort": "K4",
+    "lecture": "D01",
+    "time_range": "2026-09-09 đến 2026-09-15"
+  },
+  "questions": [
+    {
+      "student": "S0081",
+      "is_preset": false,
+      "student_question": "Context window là gì?"
+    },
+    {
+      "student": "S0081",
+      "is_preset": false,
+      "student_question": "Context window là gì?"
+    },
+    {
+      "student": "S0081",
+      "is_preset": false,
+      "student_question": "Context window là gì?"
+    },
+    {
+      "student": "S0082",
+      "is_preset": false,
+      "student_question": "Context window của model nghĩa là gì?"
+    }
+  ],
+  "materials": [
+    {
+      "source_id": "[T04-051]",
+      "source_type": "transcript",
+      "content": "Context window là lượng thông tin model xử lý trong một lần."
+    }
+  ],
+  "selected_cluster": null,
+  "teacher_confirmed_source": false
+}

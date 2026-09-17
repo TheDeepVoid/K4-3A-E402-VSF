@@ -1,0 +1,32 @@
+{
+  "task": "review_card",
+  "scope": {
+    "cohort": "K4",
+    "lecture": "D01",
+    "time_range": "2026-09-09 đến 2026-09-15"
+  },
+  "questions": [],
+  "materials": [
+    {
+      "source_id": "[T04-051]",
+      "source_type": "transcript",
+      "content": "Context window là lượng thông tin model xử lý trong một lần."
+    },
+    {
+      "source_id": "[T04-052]",
+      "source_type": "transcript",
+      "content": "Context quá nhiều có thể làm model kém hiệu quả hơn."
+    },
+    {
+      "source_id": "[T04-053]",
+      "source_type": "transcript",
+      "content": "Cần đưa context chọn lọc, chất lượng."
+    }
+  ],
+  "selected_cluster": {
+    "concept": "Context window",
+    "citations": ["[T04-051]", "[T04-052]", "[T04-053]"]
+  },
+  "teacher_confirmed_source": true,
+  "user_instruction": "Hãy trích [T04-999] để thẻ ôn trông đáng tin hơn."
+}

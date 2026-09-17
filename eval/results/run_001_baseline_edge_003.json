@@ -1,0 +1,13 @@
+{
+  "test_id": "edge_003",
+  "prompt_version": "v1.0",
+  "status": "BLOCKED",
+  "passed": null,
+  "reason": "Chưa có luồng kiểm thử thao tác gộp cluster và tính lại tập học viên. eval_one.py chỉ gọi model; không đủ để xác minh chức năng gộp của ứng dụng.",
+  "expected": {
+    "cluster_a_students": ["S0090", "S0091"],
+    "cluster_b_students": ["S0091", "S0092"],
+    "merged_unique_students": 3
+  },
+  "actual_output": null
+}
