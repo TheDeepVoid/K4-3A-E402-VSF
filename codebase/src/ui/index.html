@@ -191,6 +191,7 @@ function persistSaved(){ localStorage.setItem('vlearn_pulse_saved_v2', JSON.stri
 
 async function init(){
   S.saved = loadSaved();
+  let metaLoaded = false;
   try {
     const metaRes = await api('/api/meta');
     S.meta = metaRes.meta;
@@ -200,21 +201,30 @@ async function init(){
       $('engineBadge').textContent = '⚙ ' + h.provider + ' · ' + h.model;
       $('engineBadge').hidden = false;
     }
+    metaLoaded = true;
   } catch(e){
     $('ownErr').hidden = false;
     $('ownErr').textContent = 'Không kết nối được API: ' + e.message;
     return;
   }
-  populateCohorts();
-  renderTransCheckboxes();
-  $('budgetVal').textContent = fmtBudget(Number($('budgetRange').value));
-  $('budgetRange').addEventListener('input', () =>
-    $('budgetVal').textContent = fmtBudget(Number($('budgetRange').value)));
-  $('ownMethod').innerHTML = '<b>Model được trang bị tools (function calling):</b> ' +
-    '<code>preprocess_questions</code> (lọc preset/câu rỗng, chuẩn hoá, dedupe), ' +
-    '<code>cluster_questions</code> (gom cụm thô), <code>ground_clusters</code> ' +
-    '(tìm đoạn <code>[Txx-NNN]</code> khớp từ khoá). Code chỉ lọc phạm vi + chọn ' +
-    'transcripts thật; preset/rỗng/dedupe do tool của model xử lý.';
+  
+  // Initialize UI with error handling for each step
+  try { populateCohorts(); } catch(e) { console.error('populateCohorts error:', e); }
+  try { renderTransCheckboxes(); } catch(e) { console.error('renderTransCheckboxes error:', e); }
+  try { 
+    $('budgetVal').textContent = fmtBudget(Number($('budgetRange').value));
+  } catch(e) { console.error('budgetVal error:', e); }
+  try { 
+    $('budgetRange').addEventListener('input', () =>
+      $('budgetVal').textContent = fmtBudget(Number($('budgetRange').value)));
+  } catch(e) { console.error('budgetRange listener error:', e); }
+  try {
+    $('ownMethod').innerHTML = '<b>Model được trang bị tools (function calling):</b> ' +
+      '<code>preprocess_questions</code> (lọc preset/câu rỗng, chuẩn hoá, dedupe), ' +
+      '<code>cluster_questions</code> (gom cụm thô), <code>ground_clusters</code> ' +
+      '(tìm đoạn <code>[Txx-NNN]</code> khớp từ khoá). Code chỉ lọc phạm vi + chọn ' +
+      'transcripts thật; preset/rỗng/dedupe do tool của model xử lý.';
+  } catch(e) { console.error('ownMethod error:', e); }
 }
 function fmtBudget(n){ return n.toLocaleString('vi-VN') + ' ký tự · chia đều theo nguồn'; }
 
@@ -691,7 +701,11 @@ async function manualCard(){
   finally { btn.disabled = false; btn.textContent = 'Tự chọn nội dung để ôn →'; }
 }
 
-init();
+init().catch(e => {
+  console.error('Init failed:', e);
+  $('ownErr').hidden = false;
+  $('ownErr').textContent = 'Lỗi khởi tạo: ' + e.message;
+});
 </script>
 </body>
 </html>
