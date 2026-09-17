@@ -303,6 +303,7 @@ async function analyse(){
     if (!res.ok) throw new Error(res.error || 'Lỗi phân tích');
     S.result = res;
     S.source = '';
+    S.analyzeTranscripts = transcripts;  // Store transcripts used in analysis for card creation
     S.cardOpen = false;
     $('review').hidden = true;
     renderResult(res);
@@ -499,7 +500,8 @@ function citationsToTranscript(citations){
 async function createCard(){
   const c = S.clusters[S.active];
   if (!c){ return toast('Chọn một cụm trước khi tạo thẻ.', true); }
-  if (!S.source){ return toast('Hãy chọn nguồn học liệu trước (nút "Chọn nguồn học liệu").', true); }
+  const transcripts = S.analyzeTranscripts || (S.source ? [S.source] : []);
+  if (!transcripts.length){ return toast('Hãy chọn nguồn học liệu trước (nút "Chọn nguồn học liệu").', true); }
   const lec = selectedLecture();
   const btn = $('create'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Đang tạo…';
   try {
@@ -511,7 +513,7 @@ async function createCard(){
         example_questions: c.example_questions || [],
         citations: c.citations || []
       },
-      transcripts: [S.source],
+      transcripts,
       char_budget: Number($('budgetRange').value),
       scope: { cohort: $('cohortSelect').value, lecture: lec.code, time_range: $('timeSelect').value }
     });
@@ -604,7 +606,7 @@ function renderSaved(){
   });
   document.querySelectorAll('[data-dup]').forEach(b => b.onclick = () => {
     const c = S.saved[+b.dataset.dup];
-    S.source = ''; S.cardOpen = true; switchView('pulse');
+    S.source = ''; S.analyzeTranscripts = []; S.cardOpen = true; switchView('pulse');
     $('review').hidden = false; $('report').hidden = true;
     $('cardTopic').textContent = c.topic;
     $('goal').value = c.goal; $('mis').value = c.mis;
@@ -660,9 +662,10 @@ $('manualPick').onclick = async () => {
 async function manualCard(){
   const btn = $('manualPick'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Đang tạo…';
   try {
+    const transcripts = S.analyzeTranscripts || (S.source ? [S.source] : []);
     const res = await api('/api/card', {
       cluster: { concept: 'Nội dung giảng viên tự chọn từ câu hỏi ẩn danh', citations: [] },
-      transcripts: [S.source],
+      transcripts,
       char_budget: Number($('budgetRange').value),
       scope: { cohort: $('cohortSelect').value, lecture: selectedLecture().code, time_range: $('timeSelect').value }
     });
