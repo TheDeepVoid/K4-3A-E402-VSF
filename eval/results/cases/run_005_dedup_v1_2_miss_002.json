@@ -1,0 +1,91 @@
+{
+  "test_id": "miss_002",
+  "timestamp": "2026-09-17T11:33:01.074272+00:00",
+  "provider": "omniroute",
+  "requested_model": "kiro/deepseek-3.2",
+  "prompt_version": "v1.2-dedup",
+  "prompt_file": "codebase/src/prompting/system_prompt.md",
+  "input": {
+    "task": "analyze_clusters",
+    "scope": {
+      "cohort": "K4",
+      "lecture": "D01",
+      "time_range": "2026-09-09 đến 2026-09-15"
+    },
+    "questions": [
+      {
+        "student": "S0041",
+        "is_preset": false,
+        "student_question": "Embedding khác fine-tuning thế nào?"
+      },
+      {
+        "student": "S0042",
+        "is_preset": false,
+        "student_question": "Embedding khác fine-tuning thế nào?"
+      }
+    ],
+    "materials": [
+      {
+        "source_id": "[T04-047]",
+        "source_type": "transcript",
+        "content": "LLM dự đoán token tiếp theo."
+      },
+      {
+        "source_id": "[T04-049]",
+        "source_type": "transcript",
+        "content": "Token là đơn vị văn bản mà mô hình xử lý."
+      }
+    ],
+    "selected_cluster": null,
+    "teacher_confirmed_source": false
+  },
+  "status": "NEEDS_REVIEW",
+  "passed": null,
+  "reason": "",
+  "actual_output": "```json\n{\n  \"status\": \"insufficient_evidence\",\n  \"scope\": {\n    \"cohort\": \"K4\",\n    \"lecture\": \"D01\",\n    \"time_range\": \"2026-09-09 đến 2026-09-15\"\n  },\n  \"summary\": {\n    \"valid_question_count\": 2,\n    \"excluded_preset_count\": 0,\n    \"excluded_empty_count\": 0,\n    \"cluster_count\": 1\n  },\n  \"clusters\": [\n    {\n      \"rank\": 1,\n      \"concept\": \"So sánh embedding và fine-tuning\",\n      \"unique_students\": 2,\n      \"question_count\": 2,\n      \"example_questions\": [\"Embedding khác fine-tuning thế nào?\"],\n      \"citations\": [],\n      \"grounding_status\": \"insufficient_evidence\",\n      \"confidence\": \"low\",\n      \"warnings\": [\"source_not_found\"],\n      \"notes\": \"Hai học viên hỏi cùng câu hỏi so sánh embedding và fine-tuning. Không tìm thấy nội dung liên quan trong materials cung cấp.\"\n    }\n  ],\n  \"warnings\": [\"source_not_found\"]\n}\n```",
+  "actual_model": "deepseek-3.2",
+  "response_status": "stop",
+  "usage": {
+    "completion_tokens": 209,
+    "prompt_tokens": 8683,
+    "total_tokens": 8892,
+    "completion_tokens_details": null,
+    "prompt_tokens_details": null
+  },
+  "latency_ms": 8350,
+  "parsed_output": {
+    "status": "insufficient_evidence",
+    "scope": {
+      "cohort": "K4",
+      "lecture": "D01",
+      "time_range": "2026-09-09 đến 2026-09-15"
+    },
+    "summary": {
+      "valid_question_count": 2,
+      "excluded_preset_count": 0,
+      "excluded_empty_count": 0,
+      "cluster_count": 1
+    },
+    "clusters": [
+      {
+        "rank": 1,
+        "concept": "So sánh embedding và fine-tuning",
+        "unique_students": 2,
+        "question_count": 2,
+        "example_questions": [
+          "Embedding khác fine-tuning thế nào?"
+        ],
+        "citations": [],
+        "grounding_status": "insufficient_evidence",
+        "confidence": "low",
+        "warnings": [
+          "source_not_found"
+        ],
+        "notes": "Hai học viên hỏi cùng câu hỏi so sánh embedding và fine-tuning. Không tìm thấy nội dung liên quan trong materials cung cấp."
+      }
+    ],
+    "warnings": [
+      "source_not_found"
+    ]
+  }
+}

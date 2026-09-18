@@ -189,3 +189,63 @@ K4-3A-E402-VSF/
 - All changes should be committed to `TheDeepVoid` branch
 - Push to GitHub manually if auth fails
 - Re-check provider pricing pages before a live demo; cheapest IDs change
+
+### Agent 3 (Repository Cleanup and Tool Fixes)
+
+**Date**: September 17, 2026
+
+**Completed Tasks**:
+
+1. **Removed Unused Files**
+   - Deleted `codebase/src/server.py` (unused HTTP server duplicate)
+   - Deleted `codebase/tests/test_cases.py` (duplicate test loader, functionality moved to `tests.test_tools`)
+
+2. **Updated Gemini Provider**
+   - Modified `codebase/src/providers/gemini_provider.py` to use the current `google.genai` library (replacing deprecated `google.generativeai`)
+   - Ensured compatibility with the latest Gemini API
+
+3. **Removed Tenacity Dependency**
+   - Removed `tenacity` import from `codebase/src/providers/base.py`
+   - Replaced `@retry` decorator with a custom exponential backoff retry implementation using `asyncio.sleep`
+   - Removed `tenacity` from `codebase/requirements.txt`
+
+4. **Cleaned Up Test Imports**
+   - Modified `codebase/tests/__init__.py` to remove the import of the deleted `test_cases` module
+
+5. **Updated Documentation (Vietnamese)**
+   - Rewrote `codebase/tests/README.md` to reflect the new repository structure:
+     - Clarified that `providers/` directory contains legacy implementations (not used in the main pipeline)
+     - Noted that `ui/` uses `index.html` (the real frontend) and `mockup.html` is no longer used
+     - Added useful commands for running the server, self-test, and unit tests
+   - Updated `codebase/README.md` (root) to match the current repo schema:
+     - Removed references to deleted `demo.py` and `eval.py` scripts
+     - Updated project structure diagram to reflect current layout (including `evaluation/` and `tools/` directories)
+     - Updated usage instructions to focus on the evaluation pipeline (`build_golden_set.py`, `run_cases.py`, `score_runs.py`) and the web UI (`src/ui/app.py`)
+     - Clarified that the UI now uses `index.html` (the real frontend) and that `mockup.html` is no longer used
+     - Updated the "Roles" section to reflect current responsibilities
+   - Updated `docs/tutorial.md` (Vietnamese tutorial) to align with the new repo structure:
+     - Updated setup instructions (including `OMNIROUTE_API_KEY` and default provider/model)
+     - Removed outdated demo/evaluation steps (since `demo.py` and `eval.py` were removed) and replaced them with the current evaluation pipeline
+     - Updated project structure diagram to match the current layout
+     - Added notes about the legacy provider directory and how to add new providers for reference
+
+6. **Fixed Evaluation Script**
+   - Modified `codebase/src/evaluation/score_runs.py` to handle cases where `parsed` output is `None` (preventing `AttributeError`)
+   - Added null checks in `purity_for_case`, `grounding_accuracy`, `coverage_for_case`, and `auto_checks` functions
+   - The script now runs successfully and produces evaluation output
+
+7. **Verified Tooling**
+   - Ran `codebase/src/tools/selftest.py` successfully (function calling test with OmniRoute provider)
+   - Ran `codebase/src/evaluation/run_cases.py` successfully (processed a test case through the pipeline)
+
+8. **Git Management**
+   - All changes committed to the `TheDeepVoid` branch in two commits:
+     - `a45d172`: Remove unused server.py and test_cases.py; fix Gemini provider to use google.genai; remove tenacity dependency; clean up tests/__init__.py
+     - `270db3d`: Update codebase/README.md and docs/tutorial.md to reflect new repo schema (removed demo.py, eval.py, updated provider usage, and structure)
+   - Fixed score_runs.py and committed: `19351bb`: Fix score_runs.py to handle None parsed output; update root README and tutorial to reflect new repo schema
+   - Created and merged pull request #11 from `TheDeepVoid` to `main`
+
+**Notes**:
+- The `providers/` directory now contains legacy AI provider implementations that are not used in the main pipeline. The primary AI interaction now occurs via direct OpenAI SDK calls in `tools/engine.py`.
+- The evaluation pipeline (`src/evaluation/`) is the recommended way to run golden-set tests.
+- The web UI (`src/ui/app.py`) provides a functional interface for interacting with the pipeline.

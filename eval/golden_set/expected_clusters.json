@@ -1,0 +1,517 @@
+{
+  "total_questions": 50,
+  "cases": {
+    "diff_001": {
+      "case_id": "diff_001",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-048]",
+        "[T04-051]",
+        "[T04-052]",
+        "[T04-053]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "diff_001_c1",
+          "concept": "Context window, attention và hallucination",
+          "question_ids": [
+            "diff_001_q0"
+          ],
+          "unique_students": 1,
+          "question_count": 1,
+          "citations": [
+            "[T04-051]",
+            "[T04-052]",
+            "[T04-053]",
+            "[T04-048]"
+          ],
+          "grounding_status": "grounded",
+          "warnings": [
+            "data_sparse"
+          ],
+          "confidence": "low",
+          "notes": "Phân biệt các ý; quan hệ với attention/hallucination chưa có bằng chứng đủ."
+        }
+      ]
+    },
+    "diff_002": {
+      "case_id": "diff_002",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-047]",
+        "[T04-048]",
+        "[T04-051]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "diff_002_c1",
+          "concept": "Hành vi model (token prediction/hallucination)",
+          "question_ids": [
+            "diff_002_q0"
+          ],
+          "unique_students": 1,
+          "question_count": 1,
+          "citations": [],
+          "grounding_status": "insufficient_evidence",
+          "warnings": [
+            "ambiguous_question",
+            "data_sparse"
+          ],
+          "confidence": "low",
+          "notes": null
+        }
+      ]
+    },
+    "diff_003": {
+      "case_id": "diff_003",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-049]",
+        "[T04-050]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "diff_003_c1",
+          "concept": "Token và tokenization",
+          "question_ids": [
+            "diff_003_q0",
+            "diff_003_q1",
+            "diff_003_q2"
+          ],
+          "unique_students": 3,
+          "question_count": 3,
+          "citations": [
+            "[T04-049]",
+            "[T04-050]"
+          ],
+          "grounding_status": "grounded",
+          "warnings": [],
+          "confidence": null,
+          "notes": null
+        }
+      ]
+    },
+    "diff_004": {
+      "case_id": "diff_004",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-040]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "diff_004_c1",
+          "concept": "Cơ chế attention trong Transformer",
+          "question_ids": [
+            "diff_004_q0",
+            "diff_004_q1"
+          ],
+          "unique_students": 2,
+          "question_count": 2,
+          "citations": [
+            "[T04-040]"
+          ],
+          "grounding_status": "grounded",
+          "warnings": [],
+          "confidence": null,
+          "notes": null
+        }
+      ]
+    },
+    "edge_001": {
+      "case_id": "edge_001",
+      "task": "analyze_clusters",
+      "expected_status": "no_valid_questions",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-049]"
+      ],
+      "clusters": []
+    },
+    "edge_002": {
+      "case_id": "edge_002",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-051]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "edge_002_c1",
+          "concept": "Context window",
+          "question_ids": [
+            "edge_002_q0",
+            "edge_002_q1",
+            "edge_002_q2",
+            "edge_002_q3"
+          ],
+          "unique_students": 2,
+          "question_count": 4,
+          "citations": [
+            "[T04-051]"
+          ],
+          "grounding_status": "grounded",
+          "warnings": [],
+          "confidence": null,
+          "notes": null
+        }
+      ]
+    },
+    "edge_004": {
+      "case_id": "edge_004",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-049]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "edge_004_c1",
+          "concept": "Token",
+          "question_ids": [
+            "edge_004_q0"
+          ],
+          "unique_students": 1,
+          "question_count": 1,
+          "citations": [
+            "[T04-049]"
+          ],
+          "grounding_status": "grounded",
+          "warnings": [
+            "data_sparse"
+          ],
+          "confidence": "low",
+          "notes": null
+        }
+      ]
+    },
+    "edge_005": {
+      "case_id": "edge_005",
+      "task": "review_card",
+      "expected_status": "source_confirmation_required",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-049]",
+        "[T04-050]"
+      ],
+      "clusters": [],
+      "concept": null,
+      "sources": [
+        "[T04-049]",
+        "[T04-050]"
+      ]
+    },
+    "edge_006": {
+      "case_id": "edge_006",
+      "task": "review_card",
+      "expected_status": "draft_ready",
+      "teacher_confirmed_source": true,
+      "materials": [
+        "[T04-051]",
+        "[T04-052]",
+        "[T04-053]"
+      ],
+      "clusters": [],
+      "concept": "Context window",
+      "sources": [
+        "[T04-051]",
+        "[T04-052]",
+        "[T04-053]"
+      ]
+    },
+    "miss_001": {
+      "case_id": "miss_001",
+      "task": "analyze_clusters",
+      "expected_status": "missing_scope",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-040]"
+      ],
+      "clusters": []
+    },
+    "miss_002": {
+      "case_id": "miss_002",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-047]",
+        "[T04-049]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "miss_002_c1",
+          "concept": "Embedding và fine-tuning",
+          "question_ids": [
+            "miss_002_q0",
+            "miss_002_q1"
+          ],
+          "unique_students": 2,
+          "question_count": 2,
+          "citations": [],
+          "grounding_status": "insufficient_evidence",
+          "warnings": [
+            "source_not_found"
+          ],
+          "confidence": null,
+          "notes": null
+        }
+      ]
+    },
+    "miss_003": {
+      "case_id": "miss_003",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-040]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "miss_003_c1",
+          "concept": "Cơ chế attention",
+          "question_ids": [
+            "miss_003_q0",
+            "miss_003_q1"
+          ],
+          "unique_students": 1,
+          "question_count": 2,
+          "citations": [
+            "[T04-040]"
+          ],
+          "grounding_status": "grounded",
+          "warnings": [],
+          "confidence": null,
+          "notes": null
+        }
+      ]
+    },
+    "noans_001": {
+      "case_id": "noans_001",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-047]",
+        "[T04-049]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "noans_001_c1",
+          "concept": "Thiết kế mạch lượng tử",
+          "question_ids": [
+            "noans_001_q0",
+            "noans_001_q1",
+            "noans_001_q2"
+          ],
+          "unique_students": 3,
+          "question_count": 3,
+          "citations": [],
+          "grounding_status": "insufficient_evidence",
+          "warnings": [
+            "source_not_found"
+          ],
+          "confidence": null,
+          "notes": null
+        }
+      ]
+    },
+    "noans_002": {
+      "case_id": "noans_002",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-051]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "noans_002_c1",
+          "concept": "Context window",
+          "question_ids": [
+            "noans_002_q10",
+            "noans_002_q11"
+          ],
+          "unique_students": 2,
+          "question_count": 2,
+          "citations": [
+            "[T04-051]"
+          ],
+          "grounding_status": "grounded",
+          "warnings": [],
+          "confidence": null,
+          "notes": null
+        }
+      ]
+    },
+    "noans_003": {
+      "case_id": "noans_003",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-049]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "noans_003_c1",
+          "concept": "Token",
+          "question_ids": [
+            "noans_003_q0"
+          ],
+          "unique_students": 1,
+          "question_count": 1,
+          "citations": [
+            "[T04-049]"
+          ],
+          "grounding_status": "grounded",
+          "warnings": [
+            "data_sparse"
+          ],
+          "confidence": "low",
+          "notes": null
+        }
+      ]
+    },
+    "norm_001": {
+      "case_id": "norm_001",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-039]",
+        "[T04-040]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "norm_001_c1",
+          "concept": "Transformer/RNN và cơ chế attention",
+          "question_ids": [
+            "norm_001_q0",
+            "norm_001_q1",
+            "norm_001_q2"
+          ],
+          "unique_students": 3,
+          "question_count": 3,
+          "citations": [
+            "[T04-039]",
+            "[T04-040]"
+          ],
+          "grounding_status": "grounded",
+          "warnings": [],
+          "confidence": null,
+          "notes": null
+        }
+      ]
+    },
+    "norm_002": {
+      "case_id": "norm_002",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-047]",
+        "[T04-048]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "norm_002_c1",
+          "concept": "LLM dự đoán token và hallucination",
+          "question_ids": [
+            "norm_002_q0",
+            "norm_002_q1",
+            "norm_002_q2",
+            "norm_002_q3"
+          ],
+          "unique_students": 2,
+          "question_count": 4,
+          "citations": [
+            "[T04-047]",
+            "[T04-048]"
+          ],
+          "grounding_status": "grounded",
+          "warnings": [],
+          "confidence": null,
+          "notes": null
+        }
+      ]
+    },
+    "norm_003": {
+      "case_id": "norm_003",
+      "task": "analyze_clusters",
+      "expected_status": "ok",
+      "teacher_confirmed_source": false,
+      "materials": [
+        "[T04-051]",
+        "[T04-049]"
+      ],
+      "clusters": [
+        {
+          "cluster_id": "norm_003_c1",
+          "concept": "Context window",
+          "question_ids": [
+            "norm_003_q0",
+            "norm_003_q1",
+            "norm_003_q2"
+          ],
+          "unique_students": 3,
+          "question_count": 3,
+          "citations": [
+            "[T04-051]"
+          ],
+          "grounding_status": "grounded",
+          "warnings": [],
+          "confidence": null,
+          "notes": null
+        },
+        {
+          "cluster_id": "norm_003_c2",
+          "concept": "Token",
+          "question_ids": [
+            "norm_003_q3",
+            "norm_003_q4",
+            "norm_003_q5",
+            "norm_003_q6",
+            "norm_003_q7"
+          ],
+          "unique_students": 1,
+          "question_count": 5,
+          "citations": [
+            "[T04-049]"
+          ],
+          "grounding_status": "grounded",
+          "warnings": [],
+          "confidence": null,
+          "notes": null
+        }
+      ]
+    },
+    "norm_004": {
+      "case_id": "norm_004",
+      "task": "review_card",
+      "expected_status": "draft_ready",
+      "teacher_confirmed_source": true,
+      "materials": [
+        "[T04-051]",
+        "[T04-052]",
+        "[T04-053]"
+      ],
+      "clusters": [],
+      "concept": "Quản lý context khi làm việc với LLM",
+      "sources": [
+        "[T04-051]",
+        "[T04-052]",
+        "[T04-053]"
+      ]
+    }
+  }
+}

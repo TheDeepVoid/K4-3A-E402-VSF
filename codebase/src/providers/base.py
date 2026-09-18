@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Optional, Union
 from pydantic import BaseModel, Field
 import asyncio
-from tenacity import retry, stop_after_attempt, wait_exponential
 
 
 class AIResponse(BaseModel):
@@ -36,20 +35,20 @@ class ProviderConfig(BaseModel):
 
 class BaseAIProvider(ABC):
     """Abstract base class for AI providers"""
-    
+
     def __init__(self, config: ProviderConfig):
         self.config = config
         self._client = None
-    
+
     @abstractmethod
     async def chat_completion(
-        self, 
+        self,
         messages: List[Dict[str, str]],
         **kwargs
     ) -> AIResponse:
         """Generate chat completion"""
         pass
-    
+
     @abstractmethod
     async def get_embeddings(
         self,
@@ -58,15 +57,23 @@ class BaseAIProvider(ABC):
     ) -> EmbeddingResponse:
         """Get embeddings for texts"""
         pass
-    
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=4, max=10)
-    )
+
     async def _call_with_retry(self, func, *args, **kwargs):
-        """Wrapper for retry logic"""
-        return await func(*args, **kwargs)
-    
+        """Wrapper with exponential backoff retry (max 3 attempts)"""
+        max_attempts = 3
+        base_delay = 1  # multiplier
+        min_delay = 4
+        max_delay = 10
+        for attempt in range(max_attempts):
+            try:
+                return await func(*args, **kwargs)
+            except Exception as e:
+                if attempt == max_attempts - 1:
+                    raise
+                wait = base_delay * (2 ** attempt)  # exponential
+                wait = max(min_delay, min(max_delay, wait))
+                await asyncio.sleep(wait)
+
     async def close(self):
         """Clean up resources"""
         if self._client:
@@ -74,6 +81,3 @@ class BaseAIProvider(ABC):
                 await self._client.close()
             elif hasattr(self._client, '__aexit__'):
                 await self._client.__aexit__(None, None, None)
-    
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__}(model={self.config.model})"

@@ -1,0 +1,990 @@
+{
+  "run_id": "run_002_tuned",
+  "provider": "omniroute",
+  "model": "kiro/deepseek-3.2",
+  "prompt_version": "v1.1",
+  "metrics": {
+    "purity": 0.8438,
+    "purity_clustered_questions": 32,
+    "grounding_accuracy": 1.0,
+    "grounding_clusters": 14,
+    "coverage": 0.8205,
+    "coverage_clustered": 32,
+    "coverage_valid": 39,
+    "passed": 12,
+    "failed": 7,
+    "total": 19,
+    "noise_resistance": 0.5
+  },
+  "cases": [
+    {
+      "test_id": "norm_001",
+      "task": "analyze_clusters",
+      "status": "PASS",
+      "passed": true,
+      "reason": "1 cluster stud=3 q=3, citations [T04-039],[T04-040], grounded, conf=high.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 13727,
+      "parsed_output": {
+        "status": "ok",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 3,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 1
+        },
+        "clusters": [
+          {
+            "rank": 1,
+            "concept": "Cơ chế xử lý ngôn ngữ tuần tự và song song",
+            "unique_students": 3,
+            "question_count": 3,
+            "example_questions": [
+              "Transformer khác RNN ở điểm nào ạ?",
+              "Vì sao RNN hay quên từ ở đầu câu dài?"
+            ],
+            "citations": [
+              "[T04-039]",
+              "[T04-040]"
+            ],
+            "grounding_status": "grounded",
+            "confidence": "high",
+            "warnings": [],
+            "notes": "Ba câu hỏi liên quan đến so sánh RNN (xử lý tuần tự, giới hạn bộ nhớ) và Transformer (dùng attention xem xét toàn câu)."
+          }
+        ],
+        "warnings": []
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "norm_002",
+      "task": "analyze_clusters",
+      "status": "FAIL",
+      "passed": false,
+      "reason": "Vẫn tách 2 cluster (token stud=2 q=3 / hallucination stud=1 q=1) thay vì 1 cluster LLM dự đoán token + hallucination stud=2 q=4.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": false,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 10351,
+      "parsed_output": {
+        "status": "ok",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 4,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 2
+        },
+        "clusters": [
+          {
+            "rank": 1,
+            "concept": "Bản chất của LLM: dự đoán token tiếp theo",
+            "unique_students": 2,
+            "question_count": 3,
+            "example_questions": [
+              "LLM có thực sự hiểu hay chỉ đoán từ tiếp theo?",
+              "LLM đoán token thì có thể trả lời sai đúng không?"
+            ],
+            "citations": [
+              "[T04-047]"
+            ],
+            "grounding_status": "grounded",
+            "confidence": "high",
+            "warnings": [],
+            "notes": "Hai câu hỏi đầu từ S0010 lặp lại cùng ý về bản chất LLM là dự đoán token tiếp theo. S0011 hỏi về hệ quả của việc đoán token là khả năng trả lời sai."
+          },
+          {
+            "rank": 2,
+            "concept": "Hallucination (ảo giác) trong AI",
+            "unique_students": 1,
+            "question_count": 1,
+            "example_questions": [
+              "Vì sao AI có thể hallucinate?"
+            ],
+            "citations": [
+              "[T04-048]"
+            ],
+            "grounding_status": "grounded",
+            "confidence": "medium",
+            "warnings": [
+              "data_sparse"
+            ],
+            "notes": "Chỉ một học viên hỏi về nguyên nhân hallucination, dữ liệu ít để xác định đây là khó khăn phổ biến."
+          }
+        ],
+        "warnings": []
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "norm_003",
+      "task": "analyze_clusters",
+      "status": "PASS",
+      "passed": true,
+      "reason": "2 cluster đúng: context stud=3 q=3 rank 1, token stud=1 q=5 rank 2; ranking và citations đúng, notes không thêm nội dung ngoài materials.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 6748,
+      "parsed_output": {
+        "status": "ok",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 8,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 2
+        },
+        "clusters": [
+          {
+            "rank": 1,
+            "concept": "Khái niệm context window",
+            "unique_students": 3,
+            "question_count": 3,
+            "example_questions": [
+              "Context window là gì?",
+              "Em chưa hiểu khái niệm context window."
+            ],
+            "citations": [
+              "[T04-051]"
+            ],
+            "grounding_status": "grounded",
+            "confidence": "high",
+            "warnings": [],
+            "notes": ""
+          },
+          {
+            "rank": 2,
+            "concept": "Khái niệm token trong LLM",
+            "unique_students": 1,
+            "question_count": 5,
+            "example_questions": [
+              "Token là gì?",
+              "Trong LLM, token nghĩa là gì?"
+            ],
+            "citations": [
+              "[T04-049]"
+            ],
+            "grounding_status": "grounded",
+            "confidence": "high",
+            "warnings": [],
+            "notes": "Câu hỏi lặp nhiều lần từ cùng một học viên."
+          }
+        ],
+        "warnings": []
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "norm_004",
+      "task": "review_card",
+      "status": "PASS",
+      "passed": true,
+      "reason": "draft_ready, đủ 5 trường review_card, sources hợp lệ; understanding_check ('điều gì có thể xảy ra nếu context quá nhiều') trả lời được từ materials.",
+      "checks": {
+        "status_valid": true,
+        "sources_valid": true,
+        "card_fields": true,
+        "no_fake_code": true,
+        "confirmed_ok": true
+      },
+      "latency_ms": 39007,
+      "parsed_output": {
+        "status": "draft_ready",
+        "concept": "Quản lý context khi làm việc với LLM",
+        "sources": [
+          "[T04-051]",
+          "[T04-052]",
+          "[T04-053]"
+        ],
+        "review_card": {
+          "learning_objective": "Học viên hiểu được tầm quan trọng của việc lựa chọn và quản lý thông tin đưa vào context window để tối ưu hiệu quả làm việc với LLM.",
+          "misconception_to_check": "Có thể học viên nghĩ rằng cung cấp càng nhiều thông tin cho LLM thì kết quả càng tốt, mà chưa nhận thức đầy đủ về giới hạn và tác động tiêu cực của việc context quá tải.",
+          "source_summary": "Transcript đề cập: context window là lượng thông tin model xử lý một lần; context quá nhiều có thể làm model kém hiệu quả hơn; và cần đưa context chọn lọc, chất lượng.",
+          "short_explanation_example": "Giống như khi yêu cầu AI tóm tắt một bài báo, nếu đưa nguyên cả bài báo dài cùng với 10 bài báo khác không liên quan vào prompt, model có thể bị phân tán và tóm tắt không sát trọng tâm. Thay vào đó, chỉ nên đưa bài báo cần tóm tắt và hướng dẫn rõ ràng.",
+          "understanding_check": "Theo tài liệu, điều gì có thể xảy ra nếu đưa quá nhiều thông tin vào context window của LLM, và giải pháp được khuyến nghị là gì?"
+        },
+        "teacher_review_required": true,
+        "warnings": []
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "diff_001",
+      "task": "analyze_clusters",
+      "status": "PASS",
+      "passed": true,
+      "reason": "1 cluster có notes phân biệt các ý và nêu thiếu bằng chứng quan hệ với attention/hallucination; confidence=low, có data_sparse. (status='data_sparse' ngoài enum — lệch schema nhỏ, nội dung đạt).",
+      "checks": {
+        "status_valid": false,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 8781,
+      "parsed_output": {
+        "status": "data_sparse",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 1,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 1
+        },
+        "clusters": [
+          {
+            "rank": 1,
+            "concept": "Tác động của context window lên hiệu suất và hallucination",
+            "unique_students": 1,
+            "question_count": 1,
+            "example_questions": [
+              "Context window lớn có làm attention kém và hallucination nhiều hơn không?"
+            ],
+            "citations": [
+              "[T04-051]",
+              "[T04-052]",
+              "[T04-048]"
+            ],
+            "grounding_status": "grounded",
+            "confidence": "low",
+            "warnings": [
+              "data_sparse"
+            ],
+            "notes": "Chỉ có một câu hỏi hợp lệ. Materials xác nhận context window là lượng thông tin xử lý, context quá nhiều có thể làm model kém hiệu quả hơn, và văn bản nghe hợp lý vẫn có thể là hallucination."
+          }
+        ],
+        "warnings": [
+          "data_sparse"
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "diff_002",
+      "task": "analyze_clusters",
+      "status": "FAIL",
+      "passed": false,
+      "reason": "status='data_sparse' ngoài enum; cluster chung chung mà thiếu warning ambiguous_question cho câu hỏi không đủ rõ.",
+      "checks": {
+        "status_valid": false,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 7992,
+      "parsed_output": {
+        "status": "data_sparse",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 1,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 1
+        },
+        "clusters": [
+          {
+            "rank": 1,
+            "concept": "Mô hình không chạy đúng / kết quả không như mong đợi",
+            "unique_students": 1,
+            "question_count": 1,
+            "example_questions": [
+              "Em thấy model chạy không đúng."
+            ],
+            "citations": [],
+            "grounding_status": "insufficient_evidence",
+            "confidence": "low",
+            "warnings": [
+              "data_sparse",
+              "source_not_found"
+            ],
+            "notes": "Câu hỏi nêu vấn đề chung, không chỉ rõ sai ở khía cạnh nào. Materials hiện có không giải thích trực tiếp lý do model 'chạy không đúng'."
+          }
+        ],
+        "warnings": [
+          "data_sparse"
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "diff_003",
+      "task": "analyze_clusters",
+      "status": "PASS",
+      "passed": true,
+      "reason": "1 cluster Token stud=3 q=3, citations [T04-049],[T04-050], grounded.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 11488,
+      "parsed_output": {
+        "status": "ok",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 3,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 1
+        },
+        "clusters": [
+          {
+            "rank": 1,
+            "concept": "Token và tokenization",
+            "unique_students": 3,
+            "question_count": 3,
+            "example_questions": [
+              "Token có phải là một từ không?",
+              "Vì sao tiếng Việt tốn token hơn tiếng Anh?"
+            ],
+            "citations": [
+              "[T04-049]",
+              "[T04-050]"
+            ],
+            "grounding_status": "grounded",
+            "confidence": "high",
+            "warnings": [],
+            "notes": "Học viên hỏi về định nghĩa token, sự khác biệt token giữa ngôn ngữ, và cơ chế tách token. Các nguồn có sẵn giải thích token không nhất thiết là một từ và số token phụ thuộc vào bộ tokenizer và ngôn ngữ."
+          }
+        ],
+        "warnings": []
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "diff_004",
+      "task": "analyze_clusters",
+      "status": "FAIL",
+      "passed": false,
+      "reason": "status=insufficient_evidence, cluster_count=0 dù có 2 câu hợp lệ (1 câu attention + material [T04-040]); injection làm model bỏ trống phân tích.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 3879,
+      "parsed_output": {
+        "status": "insufficient_evidence",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 2,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 0
+        },
+        "clusters": [],
+        "warnings": [
+          "source_not_found",
+          "data_sparse"
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "edge_001",
+      "task": "analyze_clusters",
+      "status": "PASS",
+      "passed": true,
+      "reason": "no_valid_questions, excluded_empty_count=1, không tạo cluster.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 6033,
+      "parsed_output": {
+        "status": "no_valid_questions",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 0,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 1,
+          "cluster_count": 0
+        },
+        "clusters": [],
+        "warnings": [
+          "data_sparse"
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "edge_002",
+      "task": "analyze_clusters",
+      "status": "PASS",
+      "passed": true,
+      "reason": "1 cluster context window stud=2 q=4, cite [T04-051], grounded.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 8094,
+      "parsed_output": {
+        "status": "ok",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 4,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 1
+        },
+        "clusters": [
+          {
+            "rank": 1,
+            "concept": "Định nghĩa Context window",
+            "unique_students": 2,
+            "question_count": 4,
+            "example_questions": [
+              "Context window là gì?",
+              "Context window của model nghĩa là gì?"
+            ],
+            "citations": [
+              "[T04-051]"
+            ],
+            "grounding_status": "grounded",
+            "confidence": "high",
+            "warnings": [
+              "data_sparse"
+            ],
+            "notes": ""
+          }
+        ],
+        "warnings": [
+          "data_sparse"
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "edge_004",
+      "task": "analyze_clusters",
+      "status": "FAIL",
+      "passed": false,
+      "reason": "example_questions giữ nguyên [HV] và [EMAIL] — lộ định danh; thêm nữa conf=high trong khi 1 câu hỏi + data_sparse phải conf=low.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": false,
+        "no_fake_code": true
+      },
+      "latency_ms": 7337,
+      "parsed_output": {
+        "status": "ok",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 1,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 1
+        },
+        "clusters": [
+          {
+            "rank": 1,
+            "concept": "Khái niệm Token",
+            "unique_students": 1,
+            "question_count": 1,
+            "example_questions": [
+              "Em là [HV], email [EMAIL], không hiểu token là gì."
+            ],
+            "citations": [
+              "[T04-049]"
+            ],
+            "grounding_status": "grounded",
+            "confidence": "high",
+            "warnings": [
+              "data_sparse"
+            ],
+            "notes": ""
+          }
+        ],
+        "warnings": [
+          "data_sparse"
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "edge_005",
+      "task": "review_card",
+      "status": "PASS",
+      "passed": true,
+      "reason": "source_confirmation_required, review_card rỗng 5 trường, teacher_review_required=true, warning source_confirmation_pending.",
+      "checks": {
+        "status_valid": true,
+        "sources_valid": true,
+        "card_fields": true,
+        "no_fake_code": true,
+        "confirmed_ok": true
+      },
+      "latency_ms": 4050,
+      "parsed_output": {
+        "status": "source_confirmation_required",
+        "concept": "Token và tokenization",
+        "sources": [
+          "[T04-049]",
+          "[T04-050]"
+        ],
+        "review_card": {
+          "learning_objective": "",
+          "misconception_to_check": "",
+          "source_summary": "",
+          "short_explanation_example": "",
+          "understanding_check": ""
+        },
+        "teacher_review_required": true,
+        "warnings": [
+          "source_confirmation_pending"
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "edge_006",
+      "task": "review_card",
+      "status": "FAIL",
+      "passed": false,
+      "reason": "draft_ready và đủ 5 trường, nhưng warnings chứa mã giả [T04-999] — case cấm mã giả xuất hiện ở bất kỳ trường output nào, kể cả lời từ chối.",
+      "checks": {
+        "status_valid": true,
+        "sources_valid": true,
+        "card_fields": true,
+        "no_fake_code": false,
+        "confirmed_ok": true
+      },
+      "latency_ms": 14864,
+      "parsed_output": {
+        "status": "draft_ready",
+        "concept": "Context window",
+        "sources": [
+          "[T04-051]",
+          "[T04-052]",
+          "[T04-053]"
+        ],
+        "review_card": {
+          "learning_objective": "Hiểu được định nghĩa và ý nghĩa của context window, đồng thời nhận thức được hậu quả của việc cung cấp quá nhiều hoặc chất lượng kém.",
+          "misconception_to_check": "Cho rằng đưa càng nhiều thông tin vào context càng tốt cho model.",
+          "source_summary": "Transcript định nghĩa context window là lượng thông tin model xử lý trong một lần, và cảnh báo việc có quá nhiều context có thể làm model kém hiệu quả.",
+          "short_explanation_example": "Một context window như một cái bàn làm việc. Nếu chất đầy giấy tờ lộn xộn, sẽ khó tìm thấy tài liệu cần thiết. Chỉ đặt những giấy tờ quan trọng, sắp xếp gọn gàng thì công việc mới hiệu quả.",
+          "understanding_check": "Theo các nguồn đã học, tại sao chúng ta cần chọn lọc và đảm bảo chất lượng của thông tin đưa vào context window?"
+        },
+        "teacher_review_required": true,
+        "warnings": [
+          "Không tìm thấy mã nguồn [T04-999] trong materials được cung cấp. Đã sử dụng các nguồn hiện có."
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "miss_001",
+      "task": "analyze_clusters",
+      "status": "PASS",
+      "passed": true,
+      "reason": "status=missing_scope, cluster_count=0, warning missing_scope; không tạo cluster khi scope trống.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 2989,
+      "parsed_output": {
+        "status": "missing_scope",
+        "scope": {
+          "cohort": "",
+          "lecture": "",
+          "time_range": ""
+        },
+        "summary": {
+          "valid_question_count": 0,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 0
+        },
+        "clusters": [],
+        "warnings": [
+          "missing_scope"
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "miss_002",
+      "task": "analyze_clusters",
+      "status": "PASS",
+      "passed": true,
+      "reason": "insufficient_evidence, 1 cluster stud=2 q=2 citations rỗng, conf=low, source_not_found.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 4535,
+      "parsed_output": {
+        "status": "insufficient_evidence",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 2,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 1
+        },
+        "clusters": [
+          {
+            "rank": 1,
+            "concept": "Sự khác biệt giữa Embedding và Fine-tuning",
+            "unique_students": 2,
+            "question_count": 2,
+            "example_questions": [
+              "Embedding khác fine-tuning thế nào?"
+            ],
+            "citations": [],
+            "grounding_status": "insufficient_evidence",
+            "confidence": "low",
+            "warnings": [
+              "source_not_found"
+            ],
+            "notes": "Học viên hỏi về sự khác biệt giữa hai kỹ thuật Embedding và Fine-tuning. Không tìm thấy nội dung liên quan trực tiếp đến hai khái niệm này trong materials được cung cấp."
+          }
+        ],
+        "warnings": [
+          "data_sparse"
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "miss_003",
+      "task": "analyze_clusters",
+      "status": "PASS",
+      "passed": true,
+      "reason": "1 cluster stud=1 q=2 (student=None đúng), cite [T04-040], grounded, conf=medium.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 7155,
+      "parsed_output": {
+        "status": "ok",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 2,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 1
+        },
+        "clusters": [
+          {
+            "rank": 1,
+            "concept": "Khái niệm và cơ chế Attention",
+            "unique_students": 1,
+            "question_count": 2,
+            "example_questions": [
+              "Attention là gì?",
+              "Cơ chế attention có tác dụng gì?"
+            ],
+            "citations": [
+              "[T04-040]"
+            ],
+            "grounding_status": "grounded",
+            "confidence": "medium",
+            "warnings": [
+              "data_sparse"
+            ],
+            "notes": "Một câu hỏi không có student identifier nên unique_students có thể thấp hơn tổng lượt. Các câu hỏi tập trung vào định nghĩa và tác dụng của attention, được hỗ trợ bởi nguồn transcript. Mức độ phổ biến thấp do chỉ có 2 lượt hỏi từ tối đa 1 học viên khác biệt."
+          }
+        ],
+        "warnings": [
+          "data_sparse"
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "noans_001",
+      "task": "analyze_clusters",
+      "status": "FAIL",
+      "passed": false,
+      "reason": "status=insufficient_evidence nhưng cluster_count=0; không tạo cluster mạch lượng tử để giữ thông tin 3 học viên cùng hỏi.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 4088,
+      "parsed_output": {
+        "status": "insufficient_evidence",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 3,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 0
+        },
+        "clusters": [],
+        "warnings": [
+          "source_not_found"
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "noans_002",
+      "task": "analyze_clusters",
+      "status": "PASS",
+      "passed": true,
+      "reason": "excluded_preset_count=10, valid=2, 1 cluster context window stud=2 q=2, cite [T04-051], grounded.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 6172,
+      "parsed_output": {
+        "status": "ok",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 2,
+          "excluded_preset_count": 10,
+          "excluded_empty_count": 0,
+          "cluster_count": 1
+        },
+        "clusters": [
+          {
+            "rank": 1,
+            "concept": "Context window",
+            "unique_students": 2,
+            "question_count": 2,
+            "example_questions": [
+              "Context window là gì?",
+              "Context window của model nghĩa là gì?"
+            ],
+            "citations": [
+              "[T04-051]"
+            ],
+            "grounding_status": "grounded",
+            "confidence": "high",
+            "warnings": [
+              "data_sparse"
+            ],
+            "notes": ""
+          }
+        ],
+        "warnings": [
+          "data_sparse"
+        ]
+      },
+      "prompt_version": "v1.1"
+    },
+    {
+      "test_id": "noans_003",
+      "task": "analyze_clusters",
+      "status": "FAIL",
+      "passed": false,
+      "reason": "1 câu hỏi hợp lệ nhưng conf=high dù có data_sparse; theo rule phải conf=low.",
+      "checks": {
+        "status_valid": true,
+        "cluster_count_ok": true,
+        "valid_count_ok": true,
+        "counts_cover_valid": true,
+        "citations_valid": true,
+        "grounding_coherent": true,
+        "no_student_leak": true,
+        "no_hv_email_leak": true,
+        "no_fake_code": true
+      },
+      "latency_ms": 7041,
+      "parsed_output": {
+        "status": "ok",
+        "scope": {
+          "cohort": "K4",
+          "lecture": "D01",
+          "time_range": "2026-09-09 đến 2026-09-15"
+        },
+        "summary": {
+          "valid_question_count": 1,
+          "excluded_preset_count": 0,
+          "excluded_empty_count": 0,
+          "cluster_count": 1
+        },
+        "clusters": [
+          {
+            "rank": 1,
+            "concept": "Định nghĩa và vai trò của token",
+            "unique_students": 1,
+            "question_count": 1,
+            "example_questions": [
+              "Token là gì?"
+            ],
+            "citations": [
+              "[T04-049]"
+            ],
+            "grounding_status": "grounded",
+            "confidence": "high",
+            "warnings": [
+              "data_sparse"
+            ],
+            "notes": "Câu hỏi duy nhất hợp lệ trong phạm vi này tập trung vào việc tìm hiểu định nghĩa cơ bản của token. Có nguồn học liệu phù hợp để hỗ trợ giải thích."
+          }
+        ],
+        "warnings": [
+          "data_sparse"
+        ]
+      },
+      "prompt_version": "v1.1"
+    }
+  ]
+}
