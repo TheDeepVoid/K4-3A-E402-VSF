@@ -1,4 +1,4 @@
-# AI SPEC — VLearn Pulse · Nhóm [??] · Zone [X]
+# AI SPEC — VLearn Pulse · Nhóm [VSF] · Zone [C3]
 Hướng: [x] A — VLearn  [ ] B — Trợ lý Học viên  [ ] C — Làn mở
 Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 
