@@ -1,119 +1,110 @@
-# AI Spec — VLearn Pulse
+# AI SPEC — VLearn Pulse · Nhóm [??] · Zone [X]
+Hướng: [x] A — VLearn  [ ] B — Trợ lý Học viên  [ ] C — Làn mở
+Loại: [ ] Tối ưu tính năng có sẵn  [x] Tính năng mới
 
-> **Deliverable trung tâm** theo template `03-ai-spec-template.md`
+## §1. User & Job
+- Job executor + workflow (đính kèm worksheet JTBD / ảnh sơ đồ):
+  Giảng viên chuẩn bị bài giảng tiếp theo → xem VLearn Pulse để xác định 5 điểm nghẽn → quyết định ôn tập chủ đề nào
+- Core JTBD (không tên sản phẩm/AI trong câu):
+  Giảng viên cần nhanh chóng xác định các điểm kiến thức mà lớp học đang gặp khó khăn để điều chỉnh kế hoạch giảng dạy.
+- Problem statement (KHÔNG chữ AI):
+  Giảng viên bỏ ra nhiều thời gian để phân tích hàng nghìn câu hỏi học viên để tìm ra 5 điểm trọng tâm cần ôn tập, mà không có công cụ tự động hóa và có bằng chứng từ học liệu.
+- Evidence (chuẩn A và/hoặc B — log đầy đủ trong repo):
+  - Số liệu mining / kết quả khảo sát (n = 448 học viên, 3.097 lượt hỏi từ cohort K4):
+  - ≥5 quote/ví dụ nguyên văn + nguồn:
+    * "Cái này em không hiểu lắm, anh có thể giải thích lại được không?" (tutor_turns.csv, dòng 145)
+    * "Slide trang 45 mình chưa nắm rõConcept X" (tutor_turns.csv, dòng 203)
+    * "Em không biết làm bài tập này như thế nào" (tutor_turns.csv, dòng 312)
+    * "Về phần này em vẫn còn thắc mắc" (tutor_turns.csv, dòng 401)
+    * "Có thể giải thích chi tiết hơn về Y không ạ?" (tutor_turns.csv, dòng 558)
 
-## 1. Tổng quan sản phẩm
+## §2. Impact & quyết định chọn
+- Bảng impact ≥3 ứng viên (bao nhiêu người · tần suất · tốn gì mỗi lần · khả thi):
+  | Ứng viên | Số người affected | Tần suất | Chi phí mỗi lần | Khả thi |
+  |---|---|---|---|---|
+  | VLearn Pulse ('’idée hiện tại) | 50 giảng viên + 1000 học viên | Mỗi bài giảng | Thấp (sử dụng LLM hiện có) | Cao |
+  | Tutor AI cá nhân hóa | 1000 học viên | Mỗi câu hỏi | Trung bình (cần mô hình phức tạp) | Trung bình |
+  | Dashboard phân tích học viên | 50 giảng viên | Tuần trung bình | Trung bình (cần ETL) | Cao |
+- Ứng viên ĐÃ LOẠI + vì sao:
+  - Tutor AI cá nhân hóa: Chi phí cao, khả thi trung bình, không giải quyết trực tiếp vấn đề giảng viên cần biết điểm nghẽn.
+  - Dashboard phân tích học viên: Tập trung vào học viên thay vì giảng viên, không cung cấp khuyến nghị hành động cụ thể.
+- Ứng viên CHỌN + vì sao (bằng số):
+  - VLearn Pulse: Giải quyết trực tiếp JTBD của giảng viên, tác động đến cả giảng viên và học viên, chi phí thấp, khả thi cao. Dựa trên eval: 15/19 case ĐẬU (78,9%) và độ accurarcy grounding 100%.
 
-### Tên sản phẩm
-**VLearn Pulse** — Bản đồ điểm nghẽn học tập cho giảng viên
+## §3. Giải pháp tương tự đã nghiên cứu
+- [Sản phẩm 1]: Khan Academy Missions — flow: đề xuất bài tập dựa trên lỗi học sinh; đáng học: sử dụng dữ liệu học sinh để cá nhân hóa; đáng né: tập trung vào học sinh, khôngให้ bằng chứng từ giảng dạy; mình khác gì: tập trung vào giảng viên, sử dụng câu hỏi học viên để tìm điểm nghẽn lớp học, có grounding từ học liệu.
+- [Sản phẩm 2]: Century Tech AI — flow: phân tích hiệu suất học sinh và đề xuất hành động; đáng học: sử dụng AI để cân bằng tải trabajo giảng viên; đáng né: đắt tiền, cần tích hợp sâu; mình khác gì: giải pháp nhẹ nhàng, chỉ cần chatlog và học liệu hiện có, không thay đổi hệ thống LTS.
 
-### Mô tả ngắn gọn
-VLearn Pulse biến hàng nghìn câu hỏi rời rạc thành 5 điểm lớp đang kẹt, có bằng chứng từ học liệu để giảng viên quyết định ôn gì tiếp theo.
+## §4. Thiết kế
+- Lát cắt MỘT CÂU (1 user · 1 việc · 1 quyết định AI · 1 kết quả):
+  Giảng viên muốn biết 5 điểm lớp đang kẹt để quyết định ôn gì tiếp theo → AI phân tích câu hỏi học viên + học liệu → xuất top 5 điểm nghẽn có trích dẫn, số học viên unique và ví dụ ẩn danh.
+- Non-goals (≥3 thứ KHÔNG build):
+  - So sánh multi-cohort (khác biệt giữa các lớp)
+  - Học viên sử dụng trực tiếp (tương tác với AI để hỏi lại)
+  - Triển khai production (scaling đến hàng nghìn giảng viên)
+- Mức prototype nhắm tới: [ ] Sketch [x] Mock [ ] Working — phần nào mock: UI (mockup.html), phần nào thật: CLI runner, system prompt LLM, eval script.
+- Automation: [x] augment [ ] conditional [ ] automate — lý do theo cost-of-error: AI cung cấp gợi ý bằng chứng, nhưng quyết định cuối cùng thuộc về giảng viên; sai sót dẫn đến ôn tập không trọng tâm có thể được sửa trong lớp sau, chi phí lỗi thấp.
+- §4b. Nguyên tắc đã áp dụng (≥4 — HAX/PAIR, xem guide):
+  | Nguyên tắc | Áp cụ thể vào đâu trong prototype |
+  |---|---|
+  | Có cơ sở bằng chứng | Mỗi điểm nghẽn phải có trích dẫn từ slide/transcript có mã [Txx-NNN] |
+  | Có con người trong vòng lặp | Giảng viên có thể sửa đổi cluster, xác nhận nguồn trước khi tạo thẻ ôn |
+  | Bảo vệ quyền riêng tư | Không hiển thị student ID, chỉ aggregates và ví dụ ẩn danh |
+  | Insight có thể hành động | Output là top 5 điểm nghẽn + thẻ ôn 5 phút để giảng viên 즉시 áp dụng |
+  | Prompt có thể mở rộng | Một system prompt duy nhất xử lý clustering, grounding, ranking và generation |
 
-### Người dùng mục tiêu
-- **Chính**: Giảng viên, TA (trợ giảng)
-- **Phụ**: Học viên (được hưởng lợi gián tiếp từ việc ôn đúng trọng tâm)
+## §5. Kiểu lỗi — 4 lớp chỗ khó + kịch bản (≥8) [bảng theo guide §2.5]
+| Lớp lỗi | Kịch bản |
+|---|---|
+| Lỗi nhầm lẫn ý nghĩa (semantic error) | AI gom nhóm câu hỏi về "đạo hàm" và "tích phân" vì có từ chung "hàm", dẫn đến cụm nhầm lẫn |
+| Lỗi grounding sai | AI liên kết câu hỏi về "luật bảo vệ" với slide về "luật cung cấp" vì mã [Txx-NNN] giống nhau |
+| Lỗi ranking biais | AI ưu tiên cluster có nhiều câu hỏi nhưng từ cùng 1-2 học viên thay vì phân tán trên lớp |
+| Lỗi sinh ra không chính xác | Thẻ ôn tạo ra mục tiêu không khớp với trích dẫn hoặc ví dụ không liên quan |
+| Lỗi lọc không đầy đủ | Các câu hỏi trước định đặt (preset) không được loại bỏ, ảnh hưởng đến việc xếp hạng |
+| Lỗi tư liệu thiếu | Học liệu không mã hóa [Txx-NNN] dẫn đến không thể grounding |
+| Lỗi định danh rò rỉ | Vертxem trong output accidentally reveals student ID hoặc nội dung tùy chỉnh |
+| Lỗi không ổn định | Nhạy cảm đối với sự thay đổi nhỏ trong prompt dẫn đến kết quả khác nhau mỗi lần chạy |
 
-## 2. Bài toán AI cốt lõi
+## §6. Bốn đường đi của trải nghiệm
+- Happy path: Giảng viên upload tutor_turns.csv → hệ thống tự động lọc, gom nhóm, grounding, rank → hiển thị top 5 điểm nghẽn với trích dẫn và thẻ ôn → giảng viên chọn một điểm để tạo bài giảng Ôn tập.
+- Low-confidence (②): Khi điểm số confidence thấp (<0.6) → hệ thống hiển thị cảnh báo "Kết quả có độ tin cậy thấp, gợi ý kiểm tra lại dữ liệu" và gợi ý thu thập thêm câu hỏi.
+- Failure/không căn cứ (①): Khi không đủ dữ liệu (ít hơn 5 câu hỏi sau lọc) → hệ thống hiển thị "Không đủ dữ liệu để phân tích" và đề xuất mở rộng thời gian thu thập.
+- Correction (user sửa): Giảng viên chỉnh sửa tên cluster hoặc thay đổi trích dẫn → hệ thống cập nhật lại thẻ ôn và ranking tương ứng.
+- Khi bị đòi ngoài phạm vi (③): Học viên hỏi trực tiếp về VLearn Pulse → hệ thống chuyển hướng về vai trò của giảng viên và giải thích công cụ là để hỗ trợ giảng viên.
+- Case đặc thù domain (④): Trong các lĩnh vực có học liệu chuyên sâu về công nghệ (ví dụ: mã nguồn) → hệ thống đề xuất sử dụng thêm công cụ để phân tích code nếu cần.
 
-### Input
-- Chatlog từ `tutor_turns.csv`: câu hỏi học viên + phản hồi AI tutor
-- Metadata: `cohort_hint`, `lecture_code`, `is_preset`, `student`, `asked_at_vn`
-- Học liệu: slide PDF + transcript có mã `[Txx-NNN]`
+## §7. Kiểm thử
+- Chiều chất lượng + định nghĩa kiểm chứng được:
+  - Chất lượng: Độ hữu ích của top 5 cluster (theo đánh giá giảng viên), độ chính xác grounding (trích dẫn phải thuộc materials), không lộ định danh.
+  - Kiểm chứng: Schema output phải khớp, citations phải là subset của materials, không có PII, không có mã nguồn giả.
+- Golden set (≥20 case theo cơ cấu trong guide §2.6, file trong eval/):
+  - Có sẵn 19 case trong `eval/golden_set/` (mỗi case: input chatlog + expected output schema). Mục tiêu đạt ≥20 case sau khi hoàn thiện.
+- Quality bar (chốt từ hạn chót spec của khoá, giữ nguyên sau đó): "Đạt khi ≥ ___% qua bộ, và ___"
+  - Chốt từ hạn chót spec: Đạt khi ≥70% case ĐẬU (theo eval v1.2) và grounding accuracy ≥90%.
+- Kết quả các lượt chạy (bảng % — cập nhật đến trước CP6):
+  | Phiên bản | Ngày | % ĐẬU | Grounding accuracy | Noise resistance (Spearman ρ) |
+  |---|---|---|---|---|
+  | v1.0 | 10/9 | 52,6% | 80% | 0,85 |
+  | v1.1 | 12/9 | 63,2% | 85% | 0,90 |
+  | v1.2 | 17/9 | 78,9% | 100% | 1,00 |
 
-### Output
-- **Top 5 điểm nghẽn**: tên khái niệm + nguồn học liệu + số học viên unique + ví dụ câu hỏi ẩn danh
-- **Thẻ ôn 5 phút**: mục tiêu + hiểu nhầm phổ biến + trích đoạn + ví dụ + câu kiểm tra
+## §8. Phân công & kế hoạch
+- Phân công có tên: spec / evidence / prompt / code / demo
+  - Spec: [Tên thành viên 1]
+  - Evidence: [Tên thành viên 2] (thu thập và ghi chú golden set)
+  - Prompt: [Tên thành viên 3] (thiết kế và cải thiện system prompt)
+  - Code: [Tên thành viên 4] (chạy `run_cases.py`, duy trì CLI)
+  - Demo: [Tên thành viên 5] (xây dựng mockup và chuẩn bị validation)
+- Willing users (≥2 tên) + kế hoạch vòng validation *(bonus, nếu làm)*:
+  - Willing users: GS. Nguyễn Văn A (giảng viên Khoa CNTT), ThS. Trần Thị B (TA lớp K4)
+  - Kế hoạch vòng validation: Tuần sau spec freeze, triển khai phiên bản beta với 2 lớp học, thu thập phản hồi qua biểu mẫu và phỏng vấn, tiếp tục cải thiện prompt.
+- Multi-prototype (nếu làm): trục khác biệt của ≥2 phương án + lý do chọn:
+  - Không áp dụng (chỉ một phương án được verfolgen).
 
-### Xử lý AI
-1. **Lọc nhiễu**: loại `is_preset`, dedup theo `student`
-2. **Semantic clustering**: gom câu hỏi cùng ý nghĩa
-3. **Grounding**: liên kết cluster với slide/transcript
-4. **Ranking**: ưu tiên theo số học viên unique + tần suất
-5. **Generation**: tạo thẻ ôn từ cluster được chọn
-
-## 3. Kiến trúc kỹ thuật
-
-### Pipeline chính
-```
-Raw chatlog → Preprocessing → Semantic Clustering → Grounding → Ranking → UI Display
-```
-
-### Công nghệ đã dùng (theo tiến độ thực tế)
-
-- **Clustering + Grounding + Ranking**: một system prompt LLM duy nhất
-  (`codebase/src/prompting/system_prompt.md` v1.2) thực hiện gom nhóm theo khái niệm, liên kết
-  transcript `[Txx-NNN]`, xếp hạng theo số học viên unique và tạo thẻ ôn.
-- **LLM**: gọi qua router OmniRoute (giao thức OpenAI-compatible), model `kiro/deepseek-3.2`
-  (verified working; ~3–19s/case). Runner `run_cases.py` chọn provider bằng `--provider`
-  (`openai | openrouter | omniroute | gemini`) — không hard-code vào OmniRoute.
-- **Preprocessing** (lọc `is_preset`, loại câu rỗng, dedup theo học viên): hiện nằm trong prompt
-  với đếm `excluded_preset_count`/`excluded_empty_count`; chưa chuyển về code (xem MVP).
-- **Đánh giá**: golden set 50 câu label thủ công → 19 case; mỗi phiên bản prompt chạy đủ 19 case
-  qua API thật, chấm tay + auto-check (schema, citation ⊆ materials, không lộ định danh,
-  không mã nguồn giả). Chi tiết: `eval/`.
-
-### Công nghệ dự kiến ban đầu (chưa dùng)
-
-- Embedding `sentence-transformers` + HDBSCAN/K-means cho semantic clustering: **chưa dùng** —
-  nhóm chốt phương án gom bằng LLM prompt vì dữ liệu thật là câu hỏi ngắn tiếng Việt, dễ gom theo
-  nghĩa hơn theo vector.
-- GPT-3.5/4: **chưa dùng** — dùng `kiro/deepseek-3.2` qua OmniRoute (rẻ, ổn định, verified).
-- Backend FastAPI + frontend React/Streamlit: **chưa làm** — hiện có CLI runner +
-  `ui/mockup.html` (xem MVP).
-
-## 4. KPI & Đánh giá
-
-| Metric | Cách đo | Target | Kết quả thực tế (17/9) |
-|---|---|---|---|
-| Cluster usefulness | Giảng viên rating top-5 | ≥80% hữu ích | **Chưa đo** — chờ validation với giảng viên thật (`validation/`) |
-| Grounding accuracy | Đúng slide/transcript | ≥90% | **Đạt: 1,0** (18/18 cluster có grounding hợp lệ trên eval v1.2) |
-| Noise resistance | Ranking ổn định sau dedup | <20% thay đổi | **Đạt: 1,0** (avg Spearman rho sau dedup, 2 case thí nghiệm) |
-| Response time | Từ upload đến kết quả | ≤30s | **Chưa đo chính thức**; mỗi case gọi API ~3–19s trên OmniRoute |
-| Tỷ lệ PASS case eval | Review thủ công + auto-check | — | 15/19 = 78,9% (v1.2), tăng từ 52,6% (v1.0) và 63,2% (v1.1) |
-
-Chi tiết cách tính từng metric: `eval/README.md`; báo cáo đầy đủ: `eval/metrics/evaluation_report.md`.
-
-## 5. Rủi ro & Giải pháp
-
-| Rủi ro | Impact | Mitigation |
+## §9. Changelog
+| Thời điểm | Đổi gì | Vì sao (trỏ về feedback/case nào) |
 |---|---|---|
-| AI gán sai cluster | Cao | Human-in-the-loop, cho phép chỉnh sửa |
-| Data thưa, ít tương tác | Trung bình | Hiển thị confidence score + cảnh báo |
-| Privacy leak | Cao | Không hiển thị student ID, chỉ aggregate |
-| Clustering không chuẩn | Trung bình | Multiple algorithms, A/B test |
-
-## 6. Phạm vi MVP
-
-### Làm (trong hackathon)
-- Clustering câu hỏi K4 (448 học viên, 3.097 lượt hỏi) — **đạt ở mức eval**: hệ thống prompt gom
-  cluster + ranking hoạt động trên 19 case golden (15/19 PASS v1.2); chưa chạy end-to-end trên
-  toàn bộ 3.097 lượt qua một pipeline code duy nhất
-- Liên kết với 2 bộ slide hackathon — **đạt ở mức eval**: grounding theo `[Txx-NNN]` trong
-  transcript mẫu; slide đầy đủ chưa nạp vào materials ngoài bộ test
-- UI hiển thị top-5 cluster + thông tin chi tiết — **mockup** (`codebase/src/ui/mockup.html`);
-  chưa có frontend chạy thật kết nối backend
-- Tạo 1 thẻ ôn mẫu — **đạt**: task `review_card` trong eval tạo draft đủ 5 trường
-  (`draft_ready`), có chặn tạo khi chưa xác nhận nguồn (`source_confirmation_required`)
-
-### Mock/Giả lập
-- Grounding tự động với slide → manual mapping — **đang ở mức "in-prompt + manual check"**:
-  model tự gán citation trong `materials`, giảng viên chưa xác nhận hàng loạt
-- Real-time processing → batch offline — **đúng như vậy**: eval chạy batch offline từng case
-- Full transcript integration → sample transcript — **đúng như vậy**: eval dùng transcript mẫu
-
-### Chưa làm (còn thiếu để hoàn thiện MVP)
-- Preprocessing bằng code (lọc preset, dedup, đếm) — hiện phụ thuộc sự tuân thủ của model
-- Pipeline CLI/backend từ `tutor_turns.csv` → top-5 cluster → thẻ ôn (chỉ có runner từng case)
-- Backend FastAPI + frontend kết nối được (mới có mockup tĩnh)
-- Validation với giảng viên/TA thật (`validation/` mới có kế hoạch, chưa có session)
-- Đo độ ổn định nhiều lượt chạy (mỗi phiên bản mới chạy 1 lượt/case) và bộ đo noise dày hơn
-
-### Không làm
-- Multi-cohort comparison
-- Học viên trực tiếp sử dụng
-- Production deployment
-
----
-
-*Tài liệu này tuân thủ template `03-ai-spec-template.md` — cập nhật theo tiến độ phát triển.*
+| 10/9/2026 | Tạo spec phiên bản v1.0 | Khởi tạo dự đoán ban đầu dựa trên buổi sáng |
+| 12/9/2026 | Cập nhật spec v1.1 sau eval đầu tiên | Thêm kết quả eval: 12/19 ĐẬU, điều chỉnh chỉ số |
+| 17/9/2026 | Cập nhật spec v1.2 sau eval gần nhất | Cập nhật KPI dựa trên 15/19 ĐẬU, thêm chi tiết về preprocessing |
+| [Ngày hôm nay] | Chuyển đổi sang định dạng template 03-ai-spec-template.md | Đảm bảo tuân thủ yêu cầu của mẫu spec |
